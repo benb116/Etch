@@ -1,0 +1,16 @@
+Polygon infill like 3d printing?
+
+Convert image to topological map where brightness => height
+    Gradient?
+    White is flat, black is steep -> more lines around steep areas
+    Issue with connecting the lines
+    Do seam-carving style energy cumsum left right up down
+
+Canny-edge to find patches
+    Hatch each patch based on brightness
+
+Inkscape to make 2 tone shapes
+For each color
+    For each path
+        Gen hatch with shapely
+        Output pts
