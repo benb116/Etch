@@ -14,3 +14,6 @@ For each color
     For each path
         Gen hatch with shapely
         Output pts
+
+Jump probability between each pixel
+Selfie drawing

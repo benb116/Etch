@@ -76,3 +76,4 @@ typings/
 .fusebox/
 
 StippleGen2.app/
+package-lock.json

@@ -3,9 +3,10 @@ import time
 # import RPi.GPIO as GPIO
 import threading
 import datetime
+import timeThread
 
 stepsPerRev = 200
-pxPerRev = 50 # pixels per revolution
+pxPerRev = 100 # pixels per revolution
 speed = 25 # pix per sec
 
 def r200(n):
@@ -23,8 +24,15 @@ def linInterp(x1, y1, x2, y2):
 
     s1 = round(r1 * stepsPerRev)
     s2 = round(r2 * stepsPerRev)
-    t1 = te / s1
-    t2 = te / s2
+    if s1 == 0:
+        t1 = 0
+    else:
+        t1 = te / s1
+
+    if s2 == 0:
+        t2 = 0
+    else:
+        t2 = te / s2
 
     dir1 = 1 - 2 * ((x2 - x1) < 0)
     dir2 = 1 - 2 * ((y2 - y1) < 0)
@@ -34,18 +42,8 @@ def linInterp(x1, y1, x2, y2):
 
     t1 = threading.Thread(target = initInterval, args = (t1*1000, s1, genStep(1, dir1), 1))
     t2 = threading.Thread(target = initInterval, args = (t2*1000, s2, genStep(2, dir2), 2))
-    # t1.start()
-    # t2.start()
-    # t1.join()
-    # t2.join()
     return t1, t2
-
-def genStep(mn, dir):
-    def s():
-        # step
-        print(mn)
-    return s
-
+    
 def initInterval(tms, n, fn, intN):
     global next_call, timer_MS, nCount, fnlist
     
@@ -68,6 +66,8 @@ def initInterval(tms, n, fn, intN):
     timer_MS[i] = tms
     nCount[i] = 0
     fnlist[i] = fn
+    if n == 0:
+        return
 
     def foo():
         global next_call, timer_MS, nCount, fnlist
@@ -75,21 +75,37 @@ def initInterval(tms, n, fn, intN):
         tf()
         
         nCount[i] += 1
-        if nCount[i] >= n:
+        if nCount[i] >= n & n >= 0:
             return
         next_call[i] = next_call[i] + timer_MS[i]/float(1000)
         threading.Timer( next_call[i] - time.time(), foo ).start()
        
     foo()
 
-a1, a2 = linInterp(1835.9187,671.7737,1830.856,676.93994)
-a1.start()
-a2.start()
+def genThread(tms, n, fn, intN):
+    return threading.Thread(target = initInterval, args = (tms*1000, n, fn, intN))
+def genStep(mn, dir):
+    def s():
+        # step
+        print(mn)
+    return s
 
 def genF(x1, y1, x2, y2):
-    return linInterp(x1, y1, x2, y2)
+    def fn():
+        a1, a2 = linInterp(x1, y1, x2, y2)
+        a1.start()
+        a2.start()
+        a1.join()
+        a2.join()
+    return fn
 
-iTime =  time.time()
+# run2 = genF(1,1,29,59)
+# run1 = genF(1,1,19,19)
+# threading.Timer( 0.1, genF(1,1,29,59) ).start()
+# threading.Timer( 3.5, genF(1,1,19,19) ).start()
+for x in range(1,100):
+    threading.Timer( x, genF(1,1,29,19) ).start()
+print(time.time())
 # for l in range(svglength):
 #     x1, y1, x2, y2 = vals[l] # Get from SVG
 #     run = genF(x1, y1, x2, y2)
