@@ -12,6 +12,15 @@
 <body>
     <canvas id="c" width="2000" height="1000" style="position: fixed;"></canvas>
 </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+<script type="text/javascript" charset="utf-8">
+    var socket = io.connect('http://localhost:5000');
+    socket.on('connect', function() {
+        console.log(333);
+        socket.emit('message', 'con');
+    });
+</script>
+
 <script type="text/javascript">
     const can = document.getElementById("c");
     const c = can.getContext("2d");
