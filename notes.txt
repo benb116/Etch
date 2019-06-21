@@ -17,3 +17,8 @@ For each color
 
 Jump probability between each pixel
 Selfie drawing
+
+- Find image of continuous line drawing
+- Extract dark pixel locations
+- Non-max suppression to make line 1px thick
+- follow path, prefer continuing in same direction
