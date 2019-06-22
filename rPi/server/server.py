@@ -1,6 +1,9 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
+import time
+import threading
 
+from auto import genThreads
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!benwashere'
 socketio = SocketIO(app)
@@ -26,5 +29,14 @@ def on_clientArtReady():
     print(time.time())
     emit('startTime', TS);
 
+def Init(pts, ts):
+    print('Init')
+    threadlist = genThreads(pts, ts)
+    # for t in threadlist:
+        # t.join()
+
+points = [[1, 1], [1, 10], [10, 10], [10, 1], [1, 1], [5, 5], [10, 10], [10, 1], [1, 1]]
+
+threading.Thread(target=Init, args=(points, time.time()+0.500)).start()
 if __name__ == '__main__':
     socketio.run(app)
