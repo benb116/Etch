@@ -77,3 +77,5 @@ typings/
 
 StippleGen2.app/
 package-lock.json
+
+__pycache__/

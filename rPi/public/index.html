@@ -12,7 +12,7 @@
 <body>
     <canvas id="c" width="2000" height="1000" style="position: fixed;"></canvas>
 </body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+<script src="socket.io.js"></script>
 <script type="text/javascript" charset="utf-8">
     var socket = io.connect('http://localhost:5000');
     socket.on('connect', function() {
@@ -23,11 +23,12 @@
         // Download points from link
         fetch('http://localhost:5000'+url)
         .then((response) => response.json())
-        .then(function(json) {
+        .then(function(data) {
             // extract points into global variable
-            points = [];
+            console.log(data);
+            points = data.points;
             // Predraw
-            dist = diff(pts);
+            dist = diff(points);
             numsteps = dist.map((d) => (d*stepPerPix));
             stepsto = [];
             numsteps.reduce(function(a,b,i) { return stepsto[i] = a+b; }, 0);
@@ -37,7 +38,9 @@
         });
     });
     socket.on('startTime', function(timeSec) {
-        const timeMS = timeSec*1000;
+        const timeMS = timeSec*1000 - BIAS;
+        console.log(timeMS);
+
         // Clear screen
 
         for (var i = 0; i < points.length-1; i++) {
@@ -54,9 +57,6 @@
 
     let points, dist, numsteps, stepsto;
 
-</script>
-
-<script type="text/javascript">
     const can = document.getElementById("c");
     const c = can.getContext("2d");
     c.scale(1,1);
@@ -64,32 +64,9 @@
 
     const speed = 10; // px per sec
     const stepPerPix = 5;
-
-    const points2 = [];
-
-    const dur = InitDraw(points2);
-    console.log(Steps2MS(dur));
+    const BIAS = 50;
 
     function Steps2MS(ns) { return ((ns)/stepPerPix/speed * 1000); }
-
-    function InitDraw(pts) {
-        const dist = diff(pts);
-        const numsteps = dist.map((d) => (d*stepPerPix));
-        let stepsto = [];
-        numsteps.reduce(function(a,b,i) { return stepsto[i] = a+b; }, 0);
-        stepsto.unshift(0);
-
-        for (var i = 0; i < pts.length-1; i++) {
-            CreateTime(i);
-        }
-        return stepsto[stepsto.length-1];
-
-        function CreateTime(i) {
-            setTimeout(function() {
-                DrawSegment(pts[i], pts[i+1], numsteps[i]);
-            }, Steps2MS(stepsto[i]));
-        }
-    }
 
     function DrawSegment(v1, v2, nsteps) {
         nsteps = Math.round(nsteps);

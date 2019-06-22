@@ -7,7 +7,7 @@ from math import sqrt
 
 stepsPerRev = 200 # Stepper motor takes in n steps to turn a full 360 deg
 pxPerRev = 40 # pixels per revolution (XY, not full vector)
-speed = 25 # pix per sec
+speed = 10 # pix per sec
 
 def r200(n):
     return round(n*200)/200
@@ -17,8 +17,8 @@ def pythag(a, b):
 
 def linInterp(x1, y1, x2, y2):
 
-    d1 = r200(abs(x2 - x1))
-    d2 = r200(abs(y2 - y1))
+    d1 = (abs(x2 - x1))
+    d2 = (abs(y2 - y1))
 
     te = pythag(d1, d2)/speed
     # print('TE', te)
