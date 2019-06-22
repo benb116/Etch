@@ -9,15 +9,22 @@ socketio = SocketIO(app)
 def home():
     return "Hello, World!"  # return a string
 
-@socketio.on('message')
-def handle_message(message):
-    print(message)
-    print('received message: ' + message)
-
 @socketio.on('connect')
-def test_connect():
-    print('eee')
-    emit('my response', {'data': 'Connected'})
+def on_connect():
+    print('connected')
+
+def SendArtLink(url):
+    emit('link', url)
+    # Init all linethreads in an array
+
+@socketio.on('clientArtReady')
+def on_clientArtReady():
+    # Determine unix start time
+    TS = time.time() + 0.500
+    print(time.time())
+    Init(PTS, TS)
+    print(time.time())
+    emit('startTime', TS);
 
 if __name__ == '__main__':
     socketio.run(app)
