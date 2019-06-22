@@ -1,9 +1,10 @@
 import time
-# import RPi.GPIO as GPIO
 import threading
 # import concurrent.futures
 import datetime
 from math import sqrt
+
+import motors
 
 stepsPerRev = 200 # Stepper motor takes in n steps to turn a full 360 deg
 pxPerRev = 40 # pixels per revolution (XY, not full vector)
@@ -17,25 +18,19 @@ def pythag(a, b):
 
 def linInterp(x1, y1, x2, y2):
 
-    d1 = (abs(x2 - x1))
-    d2 = (abs(y2 - y1))
+    d1 = abs(x2 - x1)
+    d2 = abs(y2 - y1)
 
     te = pythag(d1, d2)/speed
     # print('TE', te)
-    r1 = r200(d1 / pxPerRev)
-    r2 = r200(d2 / pxPerRev)
+    r1 = d1 / pxPerRev
+    r2 = d2 / pxPerRev
 
     s1 = round(r1 * stepsPerRev)
     s2 = round(r2 * stepsPerRev)
-    if s1 == 0:
-        t1 = 0
-    else:
-        t1 = te / s1
 
-    if s2 == 0:
-        t2 = 0
-    else:
-        t2 = te / s2
+    t1 = 0 if s1 == 0 else te / s1
+    t2 = 0 if s2 == 0 else te / s2
 
     dir1 = 1 - 2 * ((x2 - x1) < 0)
     dir2 = 1 - 2 * ((y2 - y1) < 0)
@@ -53,10 +48,7 @@ def initInterval(tms, n, fn, intN):
     try:
         next_call
     except NameError:
-        next_call = [];
-        timer_MS = [];
-        nCount = [];
-        fnlist = [];
+        clearTimerInfo()
 
     while len(next_call) < intN:
         next_call.append(0)
@@ -85,10 +77,16 @@ def initInterval(tms, n, fn, intN):
        
     foo()
 
+def clearTimerInfo():
+    next_call = [];
+    timer_MS = [];
+    nCount = [];
+    fnlist = [];
+
 def genStep(mn, dir):
     def s():
-        # step
         # print(mn*dir)
+        motors.step(mn, dir)
         pass
     return s
 
@@ -106,12 +104,8 @@ def lineThread(pretime, th1, th2):
         return threading.Timer( pretime - time.time(), genF(th1, th2) ).start()
     return fn
 
-# executor = ThreadPoolExecutor(max_workers=50)
-
 def genThreads(pts, startT):
-    linethreads = [];
     pretime = startT;
-    print(pretime)
     for i in range(len(pts)-1):
         a = pts[i][0]
         b = pts[i][1]
@@ -119,9 +113,11 @@ def genThreads(pts, startT):
         d = pts[i+1][1]
         te, th1, th2 = linInterp(a,b,c,d)
 
-        t = threading.Timer( pretime - time.time(), genF(th1, th2) ).start()
+        threading.Timer( pretime - time.time(), genF(th1, th2) ).start()
 
         pretime += te
+        # Delay to reduce the # of threads active at once
         time.sleep(te - 0.1 + threading.active_count()*.003)
-    print(pretime)
+
+    clearTimerInfo()
     return linethreads

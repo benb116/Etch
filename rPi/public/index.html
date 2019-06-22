@@ -55,13 +55,13 @@
         }
     });
 
-    let points, dist, numsteps, stepsto;
-
     const can = document.getElementById("c");
     const c = can.getContext("2d");
     c.scale(1,1);
     c.lineWidth = 1;
 
+    let points, dist, numsteps, stepsto;
+    let coord = [100, 100];
     const speed = 10; // px per sec
     const stepPerPix = 5;
     const BIAS = 50;
@@ -89,6 +89,7 @@
         c.moveTo(p1[0], p1[1]);
         c.lineTo(p2[0], p2[1]);
         c.stroke();
+        coord = p2;
     }
 
     function diff(a) {
@@ -100,5 +101,16 @@
             return Math.sqrt(Math.pow(e[0] - b[i][0], 2) + Math.pow(e[1] - b[i][1], 2));
         });
     }
+
+    function ClearScreen() {}
+
+    const dl = 1;
+    socket.on('tick', function(mn, dir) {
+        console.log(mn, dir);
+        let newp = coord.slice();
+        newp[mn] += dl * dir;
+        DrawStep(coord, newp);
+    });
+    socket.on('coord', function(x, y) { coord = [x, y]; });
 </script>
 </html>

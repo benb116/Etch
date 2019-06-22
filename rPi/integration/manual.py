@@ -19,25 +19,36 @@ vb = 20
 # vaLastState = GPIO.input(va)
 
 def horCallback(channel):  
-    global haLastState
     try:
         # haState = GPIO.input(ha)
         if haState != haLastState:
+            haLastState = haState
             # hbState = GPIO.input(hb)
-            if hbState != haState:
-                Tick(1, 1)
+            if hbState == haState:
+                return (1, 1)
             else:
-                Tick(1, -1)
-        haLastState = haState
+                return (1, -1)
+        return (0, 0)
     finally:
         print "Ending"
 
+def verCallback(channel):  
+    try:
+        # vaState = GPIO.input(va)
+        if vaState != vaLastState:
+            vaLastState = vaState
+            # vbState = GPIO.input(vb)
+            if vbState == vaState:
+                return (2, 1)
+            else:
+                return (2, -1)
+        return (0, 0)
+    finally:
+        print "Ending"
 
-
-counter = 0
-# clkLastState = GPIO.input(clk)
 # TODO: Change to rising if necessary
 # TODO: Need a debounce?
-# GPIO.add_event_detect(clk, GPIO.FALLING  , callback=horCallback, bouncetime=300)  
+# GPIO.add_event_detect(ha, GPIO.FALLING  , callback=horCallback, bouncetime=300)  
+# GPIO.add_event_detect(va, GPIO.FALLING  , callback=verCallback, bouncetime=300)  
 
 # GPIO.cleanup()
