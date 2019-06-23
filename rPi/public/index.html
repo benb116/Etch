@@ -10,7 +10,7 @@
     </style>
 </head>
 <body>
-    <canvas id="c" width="2000" height="1000" style="position: fixed;"></canvas>
+    <canvas id="c" width="1200" height="700" style="position: fixed;"></canvas>
 </body>
 <script src="socket.io.js"></script>
 <script type="text/javascript" charset="utf-8">
@@ -27,6 +27,7 @@
             // extract points into global variable
             console.log(data);
             points = data.points;
+            speed = data.pxSpeed;
             // Predraw
             dist = diff(points);
             numsteps = dist.map((d) => (d*stepPerPix));
@@ -42,7 +43,7 @@
         console.log(timeMS);
 
         // Clear screen
-
+        console.log('speed', speed);
         for (var i = 0; i < points.length-1; i++) {
             CreateTime(i);
         }
@@ -62,7 +63,7 @@
 
     let points, dist, numsteps, stepsto;
     let coord = [100, 100];
-    const speed = 10; // px per sec
+    let speed = 10; // px per sec
     const stepPerPix = 5;
     const BIAS = 50;
 

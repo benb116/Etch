@@ -4,7 +4,7 @@ import threading
 import datetime
 from math import sqrt
 
-import motors
+# import motors
 
 stepsPerRev = 200 # Stepper motor takes in n steps to turn a full 360 deg
 pxPerRev = 40 # pixels per revolution (XY, not full vector)
@@ -48,7 +48,11 @@ def initInterval(tms, n, fn, intN):
     try:
         next_call
     except NameError:
-        clearTimerInfo()
+        # clearTimerInfo()
+        next_call = [];
+        timer_MS = [];
+        nCount = [];
+        fnlist = [];
 
     while len(next_call) < intN:
         next_call.append(0)
@@ -86,7 +90,7 @@ def clearTimerInfo():
 def genStep(mn, dir):
     def s():
         # print(mn*dir)
-        motors.step(mn, dir)
+        # motors.step(mn, dir)
         pass
     return s
 
@@ -104,7 +108,10 @@ def lineThread(pretime, th1, th2):
         return threading.Timer( pretime - time.time(), genF(th1, th2) ).start()
     return fn
 
-def genThreads(pts, startT):
+def genThreads(pts, startT, pxSpeed, pxRev):
+    global pxPerRev, speed
+    pxPerRev = pxRev
+    speed = pxSpeed
     pretime = startT;
     for i in range(len(pts)-1):
         a = pts[i][0]
@@ -117,7 +124,5 @@ def genThreads(pts, startT):
 
         pretime += te
         # Delay to reduce the # of threads active at once
-        time.sleep(te - 0.1 + threading.active_count()*.003)
-
-    clearTimerInfo()
-    return linethreads
+        sleeptime = max((te - 0.1 + threading.active_count()*.003), 0.001)
+        time.sleep(sleeptime)

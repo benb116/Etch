@@ -7,13 +7,13 @@ import json
 # GPIO.setmode(GPIO.BCM)
 
 from integration.auto import genThreads
-import integration.motors as motors
+# import integration.motors as motors
 
 app = Flask(__name__, static_folder='public')
 app.config['SECRET_KEY'] = 'secret!benwashere'
 socketio = SocketIO(app)
 
-url = '/art/1.json'
+url = '/art/apple.json'
 AUTO = True
 isConnected = False
 
@@ -29,6 +29,7 @@ def socketioFile():
 def on_connect():
     print('connected')
     isConnected = True
+    SendArtLink(url)
 
 @socketio.on('AUTO')
 def on_modeChange(a):
@@ -55,12 +56,14 @@ def on_clientArtReady():
     with open('public/'+url) as json_file:  
         data = json.load(json_file)
         points = data['points']
+        pxSpeed = data['pxSpeed']
+        pxPerRev = data['pxPerRev']
 
     # Determine unix start time
     TS = time.time() + 0.500
 
     print('Init')
-    threading.Thread(target=genThreads, args=(points, TS)).start()
+    threading.Thread(target=genThreads, args=(points, TS, pxSpeed, pxPerRev)).start()
     emit('startTime', TS);
 
 
@@ -102,9 +105,10 @@ def verCallback(channel):
             emit('tick', (2, -1))
 
 def InitManual():
-    motors.turnOff()
+    # motors.turnOff()
     # GPIO.add_event_detect(ha, GPIO.FALLING  , callback=horCallback, bouncetime=300)
     # GPIO.add_event_detect(va, GPIO.FALLING  , callback=verCallback, bouncetime=300)
+    pass
 
 
 if __name__ == '__main__':
