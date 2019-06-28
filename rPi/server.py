@@ -1,3 +1,4 @@
+#! python3
 from flask import Flask, request, send_from_directory
 from flask_socketio import SocketIO, emit
 import time
@@ -7,14 +8,13 @@ import json
 # GPIO.setmode(GPIO.BCM)
 
 from integration.auto import genThreads
-# import integration.motors as motors
 
 app = Flask(__name__, static_folder='public')
 app.config['SECRET_KEY'] = 'secret!benwashere'
 socketio = SocketIO(app)
 
-url = '/art/apple.json'
-AUTO = True
+url = '/art/test.json'
+AUTO = True # Current mode
 isConnected = False
 
 @app.route('/')
@@ -53,6 +53,7 @@ def SendArtLink(url):
 
 @socketio.on('clientArtReady')
 def on_clientArtReady():
+    # pull file that we sent
     with open('public/'+url) as json_file:  
         data = json.load(json_file)
         points = data['points']
@@ -112,4 +113,5 @@ def InitManual():
 
 
 if __name__ == '__main__':
+    print('begin')
     socketio.run(app)
