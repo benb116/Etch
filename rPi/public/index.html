@@ -22,7 +22,7 @@
     socket.on('link', function(url) {
         console.log('new link', url);
         // Download points from link
-        fetch('http://localhost:5000'+url)
+        fetch('http://localhost:5000'+url, {cache: 'reload'})
         .then((response) => response.json())
         .then(function(data) {
             // extract points and speed into global variables

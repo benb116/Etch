@@ -10,10 +10,11 @@ import json
 from integration.auto import genThreads
 
 app = Flask(__name__, static_folder='public')
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['SECRET_KEY'] = 'secret!benwashere'
 socketio = SocketIO(app)
 
-url = '/art/test.json'
+url = '/art/Elephant.json'
 AUTO = True # Current mode
 isConnected = False
 

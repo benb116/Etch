@@ -9,7 +9,6 @@ from matplotlib import pyplot as plt
 import matplotlib
 from tsp_solver.greedy import solve_tsp
 from scipy.spatial import distance_matrix
-np.set_printoptions(threshold=sys.maxsize)
 
 # path_output_dir = './frames/'
 
@@ -84,35 +83,42 @@ np.set_printoptions(threshold=sys.maxsize)
 
 #   return M
 
-frame = cv2.imread('/Users/Ben/Desktop/im.png', 0)
-frame = (frame < 200) & (frame > 10)
+frame = cv2.imread('/Users/Ben/Desktop/im2.png', 0)
+edges = cv2.Canny(frame,100,200)
+
+plt.imshow(edges)
+plt.show()
+
+frame = (frame < 200) & (frame > 10 )
+print(np.sum(frame))
 
 # Set up interpolation of gradient magnitude
 xmax, ymax = frame.shape
 x = np.arange(0, xmax)
 y = np.arange(0, ymax)
 Y, X = np.meshgrid(y,x)
-xp = X[frame]
-yp = Y[frame];
+xp = Y[frame]
+yp = X[frame];
 
 cities = (np.transpose([xp, yp]))
 
-print(np.transpose(cities))
 d = distance_matrix(cities, cities)
 # print(d)
+np.set_printoptions(threshold=sys.maxsize)
+# print(cities)
+plt.imshow(frame)
+plt.show()
 
 path = solve_tsp(d)
-print(path)
-print(cities[path])
+# print(path)
+# print(cities[path])
+print(np.array2string(cities[path], separator=','))
 
 # print(np.sum(frame))
 # for x in range(1,3):
   # Mag, magX, magy, Ori = findDerivatives(frame)
   # frame = frame & (Mag < .5)
   # print(np.sum(frame))
-
-plt.imshow(frame)
-plt.show()
 
 
 
