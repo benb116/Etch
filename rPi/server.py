@@ -14,7 +14,7 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['SECRET_KEY'] = 'secret!benwashere'
 socketio = SocketIO(app)
 
-url = '/art/Elephant.json'
+url = '/art/Tulip.json'
 AUTO = True # Current mode
 isConnected = False
 
@@ -65,7 +65,7 @@ def on_clientArtReady():
     TS = time.time() + 0.500
 
     print('Init')
-    threading.Thread(target=genThreads, args=(points, TS, pxSpeed, pxPerRev)).start()
+    # threading.Thread(target=genThreads, args=(points, TS, pxSpeed, pxPerRev)).start()
     emit('startTime', TS);
 
 

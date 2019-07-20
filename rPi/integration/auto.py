@@ -39,7 +39,7 @@ def linInterp(x1, y1, x2, y2):
 
     # print(d1, r1, s1, t1, dir1)
     # print(d2, r2, s2, t2, dir2)
-
+    print(s1, s2)
     # Return interval threads
     th1 = threading.Thread(target = initInterval, args = (t1*1000, s1, createStepFn(1, dir1), 1))
     th2 = threading.Thread(target = initInterval, args = (t2*1000, s2, createStepFn(2, dir2), 2))
@@ -96,7 +96,7 @@ def createStepFn(mn, dir):
 # Begin the motor threads that were already created
 def genF(a1, a2):
     def fn():
-        print('start')
+        # print('start')
         a1.start()
         a2.start()
         a1.join()

@@ -5,26 +5,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import RectBivariateSpline
 from scipy import signal
-from scipy.ndimage import convolve
+from scipy.ndimage import convolve, gaussian_filter
 from tsp_solver.greedy import solve_tsp
 from scipy.spatial import distance_matrix
 
 
 def main():
   folder = '/Users/Ben/Desktop/'
-  im_path = os.path.join(folder, '4.jpg')
+  im_path = os.path.join(folder, 'Tulip.jpg')
 
   I = np.array(Image.open(im_path).convert('RGB'))
   Ig = 255 - rgb2gray(I)
   plt.imshow(Ig)
   plt.show()
-  line = ((Ig > 200))
-  line = blur(line)
-  line = blur(line)
+  line = Ig > 120
   line = blur(line)
   Mag, Magx, Magy, Ori = findDerivatives(line)
   M = nonMaxSup(line, Ori)
-  line = (M & (Ig > 200))
+  line = (M & (Ig > 120))
   line = thinOut(line)
   print('Line done')
 
@@ -32,9 +30,7 @@ def main():
   plt.show()
   cities = getCities(line.astype(bool))
   print(cities.shape)
-  # Start = 73, 303
-# 231, 344 - 970
-# 248, 421 - 619
+
   np.set_printoptions(threshold=sys.maxsize)
   # print(np.array2string(cities, separator=','))
   d = distance_matrix(cities, cities)
@@ -104,22 +100,10 @@ def thinOut(thick):
   c = convolve(thick, kernel, mode='constant')
   return np.multiply((c < 3), thick) > 0
 
-def thin(thick):
-  kernel = np.array([[0, 0, 0], [0, 0, 1], [0, 1, 1]])
-  c = convolve(thick, kernel, mode='constant')
-  return np.multiply((c < 3), thick) > 0
-
 def blur(line):
   kernel = np.ones((5, 5))
   c = convolve(line.astype(int), kernel, mode='constant')
-  print(np.max(c))
   return c
-
-def despeck(thick):
-  kernel = np.ones((7, 7))
-  c = convolve(thick.astype(int), kernel, mode='constant')
-  print(np.max(c))
-  return np.multiply((c > 1), thick) > 0
 
 def getCities(line):
   xmax, ymax = line.shape
