@@ -8,13 +8,14 @@ import json
 # GPIO.setmode(GPIO.BCM)
 
 from integration.auto import genThreads
+# from integration.encoder import readAngle
 
 app = Flask(__name__, static_folder='public')
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['SECRET_KEY'] = 'secret!benwashere'
 socketio = SocketIO(app)
 
-url = '/art/Tulip.json'
+url = '/art/MarioLine3.json'
 AUTO = True # Current mode
 isConnected = False
 
@@ -46,7 +47,7 @@ def on_modeChange(a):
 
 @app.route('/art/<path:path>')
 def send_art(path):
-    print('art'+path)
+    print('art/'+path)
     return app.send_static_file('art/'+path)
 
 def SendArtLink(url):
@@ -70,48 +71,33 @@ def on_clientArtReady():
 
 
 ## MANUAL MODE ##
+stepsPerRev = 200
+bitsPerStep = 20
 
-# Input pins
-ha = 17 # Horizontal motor A pin
-hb = 18
-va = 19
-vb = 20
-
-# TODO: Determine pull up or down
-# GPIO.setup(ha, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-# GPIO.setup(hb, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-# GPIO.setup(va, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-# GPIO.setup(vb, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-# haLastState = GPIO.input(ha)
-# vaLastState = GPIO.input(va)
-
-def horCallback(channel):  
-    # haState = GPIO.input(ha)
-    if haState != haLastState:
-        haLastState = haState
-        # hbState = GPIO.input(hb)
-        if hbState == haState:
-            emit('tick', (1, 1)) 
-        else:
-            emit('tick', (1, -1)) 
-
-def verCallback(channel):  
-    # vaState = GPIO.input(va)
-    if vaState != vaLastState:
-        vaLastState = vaState
-        # vbState = GPIO.input(vb)
-        if vbState == vaState:
-            emit('tick', (2, 1)) 
-        else: 
-            emit('tick', (2, -1))
+oldVal = [0, 0]
 
 def InitManual():
     # motors.turnOff()
-    # GPIO.add_event_detect(ha, GPIO.FALLING  , callback=horCallback, bouncetime=300)
-    # GPIO.add_event_detect(va, GPIO.FALLING  , callback=verCallback, bouncetime=300)
-    pass
+    # oldVal[0] = readAngle(0)
+    # oldVal[1] = readAngle(1)
+    while ~AUTO:
+        time.sleep(50)
+        t0 = threading.Thread(target=checkTick, args=(0)).start()
+        t1 = threading.Thread(target=checkTick, args=(1)).start()
 
+def checkTick(mn):
+    o = oldVal[mn]
+    n = readAngle(mn)
+
+    diff = (n - o)
+    if abs(diff) > 4096/2:
+        diff = diff + 4096 * (-1 + 2*(o > n))
+    if diff >= bitsPerStep:
+        emit('tick', (mn, round(diff/bitsPerStep)))
+        oldVal[mn] = n
+    if -diff >= bitsPerStep:
+        emit('tick', (mn, round(diff/bitsPerStep)))
+        oldVal[mn] = n
 
 if __name__ == '__main__':
     print('begin')

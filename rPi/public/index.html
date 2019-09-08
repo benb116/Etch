@@ -19,7 +19,33 @@
         console.log('Connected');
     });
     // When the server sends a link to a new art file
-    socket.on('link', function(url) {
+    socket.on('link', Setup);
+    // When the server sends the drawing start time (in seconds)
+    socket.on('startTime', function(timeSec) {
+        const timeMS = timeSec*1000 - BIAS;
+        console.log(timeMS);
+
+        // Clear screen
+
+        // Create the interval threads
+        for (var i = 0; i < points.length-1; i+=1) {
+            CreateTime(i);
+        }
+
+        function CreateTime(i) {
+            // This thread starts n ms after the start time (with drift offset)
+            const start = Steps2MS(stepsto[i]) + timeMS - Date.now();
+            timeouts.push(setTimeout(function() {
+                DrawSegment(points[i], points[i+1], numsteps[i]);
+            }, start));
+        }
+    });
+
+    function Setup(url) {
+        for (var i=0; i<timeouts.length; i++) {
+            clearTimeout(timeouts[i]);
+        }
+        setTimeout(ClearScreen, 100);
         console.log('new link', url);
         // Download points from link
         fetch('http://localhost:5000'+url, {cache: 'reload'})
@@ -36,36 +62,19 @@
             numsteps.reduce(function(a,b,i) { return stepsto[i] = a+b; }, 0);
             stepsto.unshift(0);
 
+
+
             // Ready to draw
             socket.emit('clientArtReady');
         });
-    });
-    // When the server sends the drawing start time (in seconds)
-    socket.on('startTime', function(timeSec) {
-        const timeMS = timeSec*1000 - BIAS;
-        console.log(timeMS);
-
-        // Clear screen
-
-        // Create the interval threads
-        for (var i = 0; i < points.length-1; i++) {
-            CreateTime(i);
-        }
-
-        function CreateTime(i) {
-            // This thread starts n ms after the start time (with drift offset)
-            const start = Steps2MS(stepsto[i]) + timeMS - Date.now();
-            setTimeout(function() {
-                DrawSegment(points[i], points[i+1], numsteps[i]);
-            }, start);
-        }
-    });
+    }
 
     const can = document.getElementById("c");
     const c = can.getContext("2d");
     c.scale(1,1);
     c.lineWidth = 1;
 
+    let timeouts = [];
     let points, dist, numsteps, stepsto;
     let coord = [100, 100];
     let speed = 10; // px per sec
@@ -83,6 +92,7 @@
         const sx = dx / nsteps; // "speed"
         const sy = dy / nsteps;
         let scount = 0;
+        console.log(v1, v2);
         // Loop through virtual steps (drift will be minimal here with small segments)
         var int = setInterval(function() {
             op = [v1[0]+sx*scount, v1[1]+sy*scount];
@@ -113,14 +123,14 @@
         });
     }
 
-    function ClearScreen() {}
+    function ClearScreen() { c.clearRect(0, 0, 1200, 700); }
 
-    const dl = 1;
     // When we get a tick event
     socket.on('tick', function(mn, dir) {
+        console.log(Date.now());
         console.log(mn, dir);
         let newp = coord.slice();
-        newp[mn] += dl * dir; // Determine the new point
+        newp[mn] += dir; // Determine the new point
         DrawStep(coord, newp);
     });
     // Move the current location

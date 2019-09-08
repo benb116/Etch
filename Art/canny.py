@@ -8,22 +8,24 @@ from scipy import signal
 from scipy.ndimage import convolve, gaussian_filter
 from tsp_solver.greedy import solve_tsp
 from scipy.spatial import distance_matrix
-
+import networkx as nx
 
 def main():
-  folder = '/Users/Ben/Desktop/'
-  im_path = os.path.join(folder, 'Tulip.jpg')
+  folder = '/Users/Ben/Desktop/Pics/'
+  im_path = os.path.join(folder, 'MarioBig.jpg')
 
   I = np.array(Image.open(im_path).convert('RGB'))
   Ig = 255 - rgb2gray(I)
   plt.imshow(Ig)
   plt.show()
-  line = Ig > 120
+  line = Ig
+  line = blur(line)
   line = blur(line)
   Mag, Magx, Magy, Ori = findDerivatives(line)
   M = nonMaxSup(line, Ori)
-  line = (M & (Ig > 120))
-  line = thinOut(line)
+  line = (M & (Ig > 10))
+  # line = thinOut(line)
+  line = despeck(line)
   print('Line done')
 
   plt.imshow(line)
@@ -31,14 +33,18 @@ def main():
   cities = getCities(line.astype(bool))
   print(cities.shape)
 
-  np.set_printoptions(threshold=sys.maxsize)
-  # print(np.array2string(cities, separator=','))
   d = distance_matrix(cities, cities)
-  path = solve_tsp(d)
-  print(np.array2string(cities[path], separator=','))
+  adj = ((d > 0) & (d < 3))
+
+  G = nx.from_numpy_matrix(adj)
+  print(G.number_of_edges())
+  np.set_printoptions(threshold=sys.maxsize)
+  print(np.array2string(cities, separator=','))
+  # path = solve_tsp(d)
+  # print(np.array2string(cities[path], separator=','))
 
 def findDerivatives(I_gray):
-  # TODO: your code here
+    # TODO: your code here
 
   dy = np.array([1,-1]).reshape(2,1)
   dx = np.array([1,-1]).reshape(1,2)
@@ -95,10 +101,16 @@ def rgb2gray(I_rgb):
   I_gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
   return I_gray
 
-def thinOut(thick):
+def thinOut(line):
   kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
-  c = convolve(thick, kernel, mode='constant')
-  return np.multiply((c < 3), thick) > 0
+  c = convolve(line, kernel, mode='constant')
+  return np.multiply((c < 3), line) > 0
+
+def despeck(line):
+  kernel = np.ones((5, 5))
+  kernel[2,2] = 0
+  c = convolve(line, kernel, mode='constant')
+  return np.multiply((c > 0), line) > 0
 
 def blur(line):
   kernel = np.ones((5, 5))
