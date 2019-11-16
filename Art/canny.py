@@ -12,7 +12,7 @@ import networkx as nx
 
 def main():
   folder = '/Users/Ben/Desktop/Pics/'
-  im_path = os.path.join(folder, 'MarioBig.jpg')
+  im_path = os.path.join(folder, 'Spiral.jpg')
 
   I = np.array(Image.open(im_path).convert('RGB'))
   Ig = 255 - rgb2gray(I)
@@ -20,24 +20,30 @@ def main():
   plt.show()
   line = Ig
   line = blur(line)
-  line = blur(line)
+  # line = blur(line)
+  # line = blur(line)
+  plt.imshow(line)
+  plt.show()
   Mag, Magx, Magy, Ori = findDerivatives(line)
   M = nonMaxSup(line, Ori)
   line = (M & (Ig > 10))
-  # line = thinOut(line)
+  plt.imshow(M)
+  plt.show()
+  line = thinOut(line)
   line = despeck(line)
-  print('Line done')
 
   plt.imshow(line)
   plt.show()
+  print('Line done')
+
   cities = getCities(line.astype(bool))
   print(cities.shape)
 
-  d = distance_matrix(cities, cities)
-  adj = ((d > 0) & (d < 3))
+  # d = distance_matrix(cities, cities)
+  # adj = ((d > 0) & (d < 3))
 
-  G = nx.from_numpy_matrix(adj)
-  print(G.number_of_edges())
+  # G = nx.from_numpy_matrix(adj)
+  # print(G.number_of_edges())
   np.set_printoptions(threshold=sys.maxsize)
   print(np.array2string(cities, separator=','))
   # path = solve_tsp(d)
