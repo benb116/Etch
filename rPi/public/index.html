@@ -18,6 +18,7 @@
     socket.on('connect', function() {
         console.log('Connected');
     });
+    var LINE = 1;
     // When the server sends a link to a new art file
     socket.on('link', Setup);
     // When the server sends the drawing start time (in seconds)
@@ -37,11 +38,13 @@
             const start = Steps2MS(stepsto[i]) + timeMS - Date.now();
             timeouts.push(setTimeout(function() {
                 DrawSegment(points[i], points[i+1], numsteps[i]);
-            }, start));
+            }, start*LINE));
         }
     });
 
-    function Setup(url) {
+    function Setup(url, immediate) {
+        console.log(immediate);
+        LINE = 1 - Boolean(immediate);
         for (var i=0; i<timeouts.length; i++) {
             clearTimeout(timeouts[i]);
         }
