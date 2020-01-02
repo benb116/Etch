@@ -1,0 +1,29 @@
+ME
+    Frame
+        Styrene covers
+            Bending form?
+        Ribs
+    Motor mounts
+    Wall mount
+    HE board mounts
+    Screen cover
+
+EE
+    Full circuit
+    Stepper control
+        Power
+        Step and dir lines
+    HE rotation
+        Switch between 2 I2C
+
+Server
+    Test stepper control
+    Allow for curves?
+    Integrate manual turning
+    Make art script
+
+Art
+    Organize art files
+    Simplify-js to reduce # points
+    Raster pics
+    3d models to lines (ln library)

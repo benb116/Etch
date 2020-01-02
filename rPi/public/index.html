@@ -10,10 +10,23 @@
     </style>
 </head>
 <body>
-    <canvas id="c" width="1200" height="700" style="position: fixed;"></canvas>
+    <canvas id="c" width="1200" height="1000" style="position: fixed;"></canvas>
 </body>
 <script src="socket.io.js"></script>
 <script type="text/javascript" charset="utf-8">
+
+    const can = document.getElementById("c");
+    const c = can.getContext("2d");
+    c.scale(1,1);
+    c.lineWidth = 1;
+
+    let timeouts = [];
+    let points, dist, numsteps, stepsto;
+    let coord = [100, 100];
+    let speed = 10; // px per sec
+    const stepPerPix = 2; // How many virtual steps to take per pixel distance
+    const BIAS = 50; // Client has slight constant lag. Increase to make client earlier
+
     var socket = io.connect('http://localhost:5000');
     socket.on('connect', function() {
         console.log('Connected');
@@ -37,10 +50,21 @@
             // This thread starts n ms after the start time (with drift offset)
             const start = Steps2MS(stepsto[i]) + timeMS - Date.now();
             timeouts.push(setTimeout(function() {
-                DrawSegment(points[i], points[i+1], numsteps[i]);
+                DrawSegment(points[i], points[i+1], (LINE ? numsteps[i] : 1));
             }, start*LINE));
         }
     });
+
+    // When we get a tick event
+    socket.on('tick', function(mn, dir) {
+        console.log(Date.now());
+        console.log(mn, dir);
+        let newp = coord.slice();
+        newp[mn] += dir; // Determine the new point
+        DrawStep(coord, newp);
+    });
+    // Move the current location
+    socket.on('coord', function(x, y) { coord = [x, y]; });
 
     function Setup(url, immediate) {
         console.log(immediate);
@@ -71,18 +95,6 @@
             socket.emit('clientArtReady');
         });
     }
-
-    const can = document.getElementById("c");
-    const c = can.getContext("2d");
-    c.scale(1,1);
-    c.lineWidth = 1;
-
-    let timeouts = [];
-    let points, dist, numsteps, stepsto;
-    let coord = [100, 100];
-    let speed = 10; // px per sec
-    const stepPerPix = 2; // How many virtual steps to take per pixel distance
-    const BIAS = 50; // Client has slight constant lag. Increase to make client earlier
 
     // Given a number of virtual steps, how long will it take
     function Steps2MS(ns) { return ((ns)/stepPerPix/speed * 1000); }
@@ -127,16 +139,5 @@
     }
 
     function ClearScreen() { c.clearRect(0, 0, 1200, 700); }
-
-    // When we get a tick event
-    socket.on('tick', function(mn, dir) {
-        console.log(Date.now());
-        console.log(mn, dir);
-        let newp = coord.slice();
-        newp[mn] += dir; // Determine the new point
-        DrawStep(coord, newp);
-    });
-    // Move the current location
-    socket.on('coord', function(x, y) { coord = [x, y]; });
 </script>
 </html>

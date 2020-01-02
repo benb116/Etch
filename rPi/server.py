@@ -9,13 +9,15 @@ import json
 
 from integration.auto import genThreads
 # from integration.encoder import readAngle
+def readAngle():
+    pass
 
 app = Flask(__name__, static_folder='public')
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['SECRET_KEY'] = 'secret!benwashere'
 socketio = SocketIO(app)
 
-url = '/art/MarioLine3.json'
+url = '/art/Audrey.json'
 AUTO = True # Current mode
 isConnected = False
 
@@ -82,8 +84,8 @@ def InitManual():
     # oldVal[1] = readAngle(1)
     while ~AUTO:
         time.sleep(50)
-        t0 = threading.Thread(target=checkTick, args=(0)).start()
-        t1 = threading.Thread(target=checkTick, args=(1)).start()
+        checkTick(0)
+        checkTick(1)
 
 def checkTick(mn):
     o = oldVal[mn]
@@ -92,10 +94,7 @@ def checkTick(mn):
     diff = (n - o)
     if abs(diff) > 4096/2:
         diff = diff + 4096 * (-1 + 2*(o > n))
-    if diff >= bitsPerStep:
-        emit('tick', (mn, round(diff/bitsPerStep)))
-        oldVal[mn] = n
-    if -diff >= bitsPerStep:
+    if abs(diff) >= bitsPerStep:
         emit('tick', (mn, round(diff/bitsPerStep)))
         oldVal[mn] = n
 

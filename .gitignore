@@ -81,3 +81,4 @@ package-lock.json
 __pycache__/
 /Art/Vidextract/frames/
 Art/ln/
+.vscode/
