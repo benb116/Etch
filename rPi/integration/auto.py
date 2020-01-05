@@ -2,9 +2,10 @@ import time
 import threading
 from math import sqrt
 
-# import motors
+# import integration.motors
 
-stepsPerRev = 200 # Stepper motor takes in n steps to turn a full 360 deg
+stepsPerRev = 400
+# stepsPerRev = motors.stepsPerRev() # Stepper motor takes in n steps to turn a full 360 deg
 pxPerRev = 40 # pixels per revolution (XY, not full vector)
 speed = 10 # pix per sec
 
@@ -39,7 +40,7 @@ def linInterp(x1, y1, x2, y2):
 
     # print(d1, r1, s1, t1, dir1)
     # print(d2, r2, s2, t2, dir2)
-    print(s1, s2)
+    # print(s1, s2)
     # Return interval threads
     th1 = threading.Thread(target = initInterval, args = (t1*1000, s1, createStepFn(1, dir1), 1))
     th2 = threading.Thread(target = initInterval, args = (t2*1000, s2, createStepFn(2, dir2), 2))
@@ -111,6 +112,7 @@ def genThreads(pts, startT, pxSpeed, pxRev):
     pxPerRev = pxRev
     speed = pxSpeed
     pretime = startT; # Updated timestamp at which the next threads will start
+    # motors.toggle(1)
     for i in range(len(pts)-1):
         a = pts[i][0]
         b = pts[i][1]

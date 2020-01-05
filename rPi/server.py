@@ -7,10 +7,15 @@ import json
 # from RPi import GPIO
 # GPIO.setmode(GPIO.BCM)
 
-from integration.auto import genThreads
-# from integration.encoder import readAngle
 def readAngle():
     pass
+
+def genThreads(a, b, c, d):
+    pass
+
+from integration.auto import genThreads
+# import motors
+# from integration.encoder import readAngle
 
 app = Flask(__name__, static_folder='public')
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -18,7 +23,7 @@ app.config['SECRET_KEY'] = 'secret!benwashere'
 socketio = SocketIO(app)
 
 url = '/art/Audrey.json'
-AUTO = True # Current mode
+AUTO = False # Current mode
 isConnected = False
 
 @app.route('/')
@@ -68,7 +73,7 @@ def on_clientArtReady():
     TS = time.time() + 0.500
 
     print('Init')
-    # threading.Thread(target=genThreads, args=(points, TS, pxSpeed, pxPerRev)).start()
+    threading.Thread(target=genThreads, args=(points, TS, pxSpeed, pxPerRev)).start()
     emit('startTime', TS);
 
 
@@ -79,7 +84,7 @@ bitsPerStep = 20
 oldVal = [0, 0]
 
 def InitManual():
-    # motors.turnOff()
+    # motors.toggle(0)
     # oldVal[0] = readAngle(0)
     # oldVal[1] = readAngle(1)
     while ~AUTO:
@@ -96,8 +101,10 @@ def checkTick(mn):
         diff = diff + 4096 * (-1 + 2*(o > n))
     if abs(diff) >= bitsPerStep:
         emit('tick', (mn, round(diff/bitsPerStep)))
+        print('tick', (mn, round(diff/bitsPerStep)))
         oldVal[mn] = n
 
 if __name__ == '__main__':
     print('begin')
     socketio.run(app)
+    InitManual()

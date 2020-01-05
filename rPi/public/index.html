@@ -24,7 +24,8 @@
     let points, dist, numsteps, stepsto;
     let coord = [100, 100];
     let speed = 10; // px per sec
-    const stepPerPix = 2; // How many virtual steps to take per pixel distance
+    const FPS = 60;
+    let stepPerPix = FPS / speed; // How many virtual steps to take per pixel distance
     const BIAS = 50; // Client has slight constant lag. Increase to make client earlier
 
     var socket = io.connect('http://localhost:5000');
@@ -37,7 +38,7 @@
     // When the server sends the drawing start time (in seconds)
     socket.on('startTime', function(timeSec) {
         const timeMS = timeSec*1000 - BIAS;
-        console.log(timeMS);
+        console.log(timeMS - Date.now());
 
         // Clear screen
 
@@ -50,6 +51,7 @@
             // This thread starts n ms after the start time (with drift offset)
             const start = Steps2MS(stepsto[i]) + timeMS - Date.now();
             timeouts.push(setTimeout(function() {
+                // console.log(Date.now(), start, LINE);
                 DrawSegment(points[i], points[i+1], (LINE ? numsteps[i] : 1));
             }, start*LINE));
         }
@@ -82,6 +84,7 @@
             console.log(data);
             points = data.points;
             speed = data.pxSpeed;
+            stepPerPix = FPS / speed;
             // Predraw
             dist = diff(points);
             numsteps = dist.map((d) => (d*stepPerPix));
@@ -110,11 +113,13 @@
         console.log(v1, v2);
         // Loop through virtual steps (drift will be minimal here with small segments)
         var int = setInterval(function() {
+            // console.time('a')
             op = [v1[0]+sx*scount, v1[1]+sy*scount];
             scount++;
             np = [v1[0]+sx*scount, v1[1]+sy*scount];
             DrawStep(op, np);
             if (scount >= nsteps) { clearInterval(int); } // End after nsteps
+            // console.timeEnd('a')
         }, 1000/speed/stepPerPix);
     }
 
