@@ -1,7 +1,7 @@
 {
   "name": "Earth",
   "pxSpeed": 40,
-  "pxPerRev": 40,
+  "pxPerRev": 80,
   "points": [[142,469],
  [144,470],
  [144,471],

@@ -4,8 +4,8 @@ from flask_socketio import SocketIO, emit
 import time
 import threading
 import json
-# from RPi import GPIO
-# GPIO.setmode(GPIO.BCM)
+from RPi import GPIO
+GPIO.setmode(GPIO.BCM)
 
 def readAngle():
     pass
@@ -14,16 +14,16 @@ def genThreads(a, b, c, d):
     pass
 
 from integration.auto import genThreads
-# import motors
-# from integration.encoder import readAngle
+
+from integration.encoder import readAngle
 
 app = Flask(__name__, static_folder='public')
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['SECRET_KEY'] = 'secret!benwashere'
 socketio = SocketIO(app)
 
-url = '/art/Audrey.json'
-AUTO = False # Current mode
+url = '/art/Test.json'
+AUTO = True # Current mode
 isConnected = False
 
 @app.route('/')
@@ -38,7 +38,7 @@ def socketioFile():
 def on_connect():
     print('connected')
     isConnected = True
-    SendArtLink(url)
+    # SendArtLink(url)
 
 @socketio.on('AUTO')
 def on_modeChange(a):
@@ -87,24 +87,28 @@ def InitManual():
     # motors.toggle(0)
     # oldVal[0] = readAngle(0)
     # oldVal[1] = readAngle(1)
+    print('InitManual')
     while ~AUTO:
-        time.sleep(50)
+        # print('check')
+        time.sleep(0.01)
         checkTick(0)
         checkTick(1)
+        # print('checkEnd')
 
 def checkTick(mn):
     o = oldVal[mn]
+    # print(o)
     n = readAngle(mn)
-
+    print(n)
     diff = (n - o)
     if abs(diff) > 4096/2:
         diff = diff + 4096 * (-1 + 2*(o > n))
     if abs(diff) >= bitsPerStep:
-        emit('tick', (mn, round(diff/bitsPerStep)))
-        print('tick', (mn, round(diff/bitsPerStep)))
+        # emit('tick', (mn, round(diff/bitsPerStep)))
+        # print('tick', (mn, round(diff/bitsPerStep)))
         oldVal[mn] = n
 
 if __name__ == '__main__':
     print('begin')
     socketio.run(app)
-    InitManual()
+    # InitManual()

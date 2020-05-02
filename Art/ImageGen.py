@@ -14,14 +14,14 @@ from PIL import Image
 
 
 # Binning and hatching parameters
-ints = np.array([30, 30, 80, 100, 130, 150])
+ints = np.array([30, 30, 80, 100, 130, 200])
 spacing = np.array([5, 5, 9, 15, 19, 0])
 orientation = np.array([-1, 1, -1, 1, -1, 1])
 offset = np.array([0, 0, 0, 0, 0, 0])
-thresh = 100000
+thresh = 120000
 
-folder = '/Users/Ben/Desktop/'
-im_path = os.path.join(folder, 'Mona.jpg')
+folder = '/Users/Ben/Desktop/Etch/'
+im_path = os.path.join(folder, 'Steve.jpg')
 print(1)
 Im = np.array(Image.open(im_path).convert('RGB'))
 Ig = rgb2gray(Im)
@@ -29,6 +29,7 @@ blurred = []
 binIm = []
 sI = []
 edIm = np.zeros(Ig.shape)
+canedges = []
 alledges = [[] for i in ints]
 hatchedgim = [[] for i in ints]
 
@@ -46,32 +47,9 @@ def main():
     sumImage = Update(0, 4, 0, 0, 0)
     sumImage = Update(0, 5, 0, 0, 0)
 
-
-    # fig, ax = plt.subplots()
-    # plt.subplots_adjust(left=0.25, bottom=0.25)
-
-    # axcolor = 'lightgoldenrodyellow'
-    # axfreq = plt.axes([0.25, 0.1, 0.65, 0.03], facecolor=axcolor)
-    # axamp = plt.axes([0.25, 0.15, 0.65, 0.03], facecolor=axcolor)
-
-    # sfreq = Slider(axfreq, 'Thresh', 1000, 200000, valinit=100000)
-    # samp = Slider(axamp, 'Amp', 0.1, 10.0, valinit=5)
-
-    # sfreq.on_changed(Update)
-    # samp.on_changed(Update)
-
-    # resetax = plt.axes([0.8, 0.025, 0.1, 0.04])
-    # button = Button(resetax, 'Reset', color=axcolor, hovercolor='0.975')
-    # def reset(event):
-    #     sfreq.reset()
-    #     samp.reset()
-    # button.on_clicked(reset)
-
-    # plt.show()
-
     print(np.sum(sumImage))
-    plt.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
-    plt.show()
+    # plt.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
+    # plt.show()
     print(5)
     G = genGraph(alledges)
     print(list(G.degree()))
@@ -81,8 +59,9 @@ def main():
 def Update(nint, sp, ori, off, edge):
     if edge:
         print(1)
-        global edIm
+        global edIm, canedges
         edIm = updEdge(Ig, thresh)
+        canedges = ConnectCanny(edIm)
     if nint:
         print(2)
         global binIm
@@ -146,38 +125,49 @@ def createDiagEdges(mask, ori):
     return edges
 
 
-def pythag(a, b):
-    return np.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
-
-
-def n1deg(T):
-    return [v for v, d2 in T.degree() if d2 == 1]
-
-
-def nOdeg(T):
-    return [v for v, d2 in T.degree() if d2 % 2 == 1]
-
 def LinkDegOne(T, d):
+    print("Link deg 1")
     nodes_one_degree = n1deg(T)
+    nodes_odd_degree = nOdeg(T)
     dOne = d[nodes_one_degree, :]
-    dOne = dOne[:, nodes_one_degree]
+    # print(dOne.shape)
+    # dOne = dOne[:, nodes_odd_degree]
     row_ind, col_ind = linear_sum_assignment(dOne)
 
     added = []
     for j in range(0, len(nodes_one_degree)):
-        # if j == col_ind[col_ind[j]]:
-        if not (j in added or col_ind[j] in added):
-            added.append(j)
-            added.append(col_ind[j])
+        # if not (j in added or col_ind[j] in added):
+            # added.append(j)
+            # added.append(col_ind[j])
             # print(nodes_one_degree[j], nodes_one_degree[col_ind[j]])
             # print(dOne[j, col_ind[j]])
-            T.add_edge(
-                nodes_one_degree[j], nodes_one_degree[col_ind[j]], weight=dOne[j, col_ind[j]])
+        T.add_edge(
+            nodes_one_degree[j], col_ind[j], weight=dOne[j, col_ind[j]])
 
     a = nx.adjacency_matrix(T)
     d = d + a * 100000
     return T, d
 
+def EasyLinkOdd(T, d):
+    print('easylinkodd')
+    nodes_odd_degree = nOdeg(T)
+    dOdd = d[nodes_odd_degree, :]
+    # print(dOdd.shape)
+    dOdd = dOdd[:, nodes_odd_degree]
+    row_ind, col_ind = linear_sum_assignment(dOdd)
+    added = []
+    for j in range(0, len(nodes_odd_degree)):
+        if not (j in added or col_ind[j] in added):
+            added.append(j)
+            added.append(col_ind[j])
+            # print(nodes_odd_degree[j], nodes_odd_degree[col_ind[j]])
+            # print(dOne[j, col_ind[j]])
+            T.add_edge(
+                nodes_odd_degree[j], col_ind[j], weight=dOdd[j, col_ind[j]])
+
+    a = nx.adjacency_matrix(T)
+    d = d + a * 100000
+    return T, d
 
 def LinkDegOdd(T, d):
     nodes_odd_degree = nOdeg(T)
@@ -187,7 +177,7 @@ def LinkDegOdd(T, d):
 
     added = []
     for j in range(0, len(nodes_odd_degree)):
-        # if j == col_ind[col_ind[j]]:
+        if j == col_ind[col_ind[j]]:
             if not (j in added or col_ind[j] in added):
                 added.append(j)
                 added.append(col_ind[j])
@@ -202,38 +192,57 @@ def LinkDegOdd(T, d):
 
 
 def ConnectSubgraphs(G, d):
-    sub_graphs = nx.connected_components(G)
+    print("CONNECT SUBGRAPHS")
+    sub_graphs = list(nx.connected_components(G))
     # d = d[G.nodes(), :]
     alln = list(G.nodes())
     # d = d[:, alln]
     # For each subgraph, connect it to the closest node in a different subgraph
     # addedges = []
-    for i, sg in enumerate(list(sub_graphs)):
-        no = list(sg)
-        # Don't look at nodes in same subgraph
-        # a, b = np.meshgrid(no, no)
-        # d[a,b] = 100000
-        # Get distances to all nodes from sg nodes
-        A = d[no, :]
-        A[:, no] = 100000
-        A = A[:, alln]
-        (z, nei) = np.unravel_index(A.argmin(), A.shape)
-        minN = no[z]
-        minNei = alln[nei]
-        if A[z, nei] >= 100000:
-            break
-        # addedges.append((minN, dnodes[nei], A[z,nei]))
-        # print(A[z, nei])
-        G.add_edge(minN, minNei, weight=A[z, nei])
+    while len(list(nx.connected_components(G))) > 1:
+        for i, sg in enumerate(sub_graphs):
+            no = list(sg)
+            # d[a,b] = 100000
+            # Get distances to all nodes from sg nodes
+            A = d[no, :]
+            A[:, no] = 100000
+            A = A[:, alln]
+            (z, nei) = np.unravel_index(A.argmin(), A.shape)
+            minN = no[z]
+            minNei = alln[nei]
+            if A[z, nei] >= 100000:
+                break
+            # addedges.append((minN, dnodes[nei], A[z,nei]))
+            # print(A[z, nei])
+            G.add_edge(minN, minNei, weight=A[z, nei])
+        sub_graphs = nx.connected_components(G)
 
     a = nx.adjacency_matrix(G)
     d = d + a * 100000
     return G, d
 
+def ConnectCanny(cIm):
+    cpts = getCities(cIm)
+    print('cannnaaaaay')
+    print(len(cpts))
+    cd = distance_matrix(cpts, cpts)
+    np.fill_diagonal(cd, 100000)
+    ca = cd < 2
+    print(np.sum(ca))
+    C = nx.from_numpy_matrix(np.multiply(cd, ca))
+    cane = C.edges()
+    print(cpts)
+    print(cane)
+    ce = list(map(lambda e: [cpts[e[0]], cpts[e[1]]], cane))
+    print(canedges)
+    return ce
+
 
 def genGraph(es):
     G = nx.MultiGraph()
-    alledges = [item for sublist in es for item in sublist]
+    alledges = [item for sublist in es for item in sublist] + canedges
+    print(alledges)
+    print(canedges)
     wedges = list(map(lambda e: (e[0], e[1], pythag(e[0], e[1])), alledges))
 
     allnodes = list(map(lambda e: [e[0], e[1]], alledges))
@@ -263,28 +272,31 @@ def genGraph(es):
     G, d = LinkDegOne(G, d)
     # nx.draw(G, dnodes, node_size=0.2)
     # plt.show()
-    print('step', 7)
-    G, d = LinkDegOne(G, d)
+
     print(len(nOdeg(G)))
     print(len(n1deg(G)))
-    # nx.draw(G, dnodes, node_size=0.2)
-    # plt.show()
+    print('step', 7)
+    # G, d = EasyLinkOdd(G, d)
+    # G, d = EasyLinkOdd(G, d)
+    # G, d = EasyLinkOdd(G, d)
+    # G, d = EasyLinkOdd(G, d)
+
+    print(len(nOdeg(G)))
+    print(len(n1deg(G)))
+    # # nx.draw(G, dnodes, node_size=0.2)
+    # # plt.show()
     print('step', 8)
     print(len(list(nx.connected_components(G))))
     G, d = ConnectSubgraphs(G, d)
-    # a = nx.adjacency_matrix(G)
-    # d = d + a * 100000
-    G, d = ConnectSubgraphs(G, d)
-    # a = nx.adjacency_matrix(G)
-    # d = d + a * 100000
-    G, d = ConnectSubgraphs(G, d)
     print(len(list(nx.connected_components(G))))
+    print(len(nOdeg(G)))
+    print(len(n1deg(G)))
+    nx.draw(G, ndnodes, node_size=0.1, width=.2)
+    plt.show()
     print('step', 9)
     G, d = LinkDegOdd(G, d)
-    G, d = LinkDegOdd(G, d)
-    G, d = LinkDegOdd(G, d)
     print('step', 10)
-
+    print(G.degree())
     nx.draw(G, ndnodes, node_size=0.1, width=.2)
     plt.show()
     print(len(nOdeg(G)))

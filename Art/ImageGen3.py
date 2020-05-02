@@ -1,4 +1,3 @@
-from postman import single_chinese_postman_path
 from canny2 import getEdgePoints
 import networkx as nx
 from scipy.optimize import linear_sum_assignment
@@ -22,8 +21,8 @@ offset = np.array([0, 0, 0, 0, 0, 0])
 
 
 def main():
-    folder = '/Users/Ben/Desktop/'
-    im_path = os.path.join(folder, 'Mona.jpg')
+    folder = '/Users/Ben/Desktop/Etch'
+    im_path = os.path.join(folder, 'Steve.jpg')
     print(1)
     Im = np.array(Image.open(im_path).convert('RGB'))
     Ig = rgb2gray(Im)

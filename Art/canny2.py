@@ -35,7 +35,12 @@ def updEdge(nIg, thr):
   oline = thinOut(oline)
   oline = despeck(oline)
 
-  # plt.imshow(line)
+  oline[0:4,:] = 0
+  oline[:,0:4] = 0
+  oline[-4:,:] = 0
+  oline[:,-4:] = 0
+
+  # plt.imshow(oline)
   # plt.show()
   print('Line done')
   print('aaaaa', np.sum(oline))

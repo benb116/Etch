@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.ndimage import convolve, gaussian_filter
+import networkx as nx
 
 def rgb2gray(I_rgb):
     r, g, b = I_rgb[:, :, 0], I_rgb[:, :, 1], I_rgb[:, :, 2]
@@ -45,3 +46,14 @@ def getCities(cmap):
     cities = tuple(zip(xp, yp))
     return cities
 
+
+def pythag(a, b):
+    return np.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
+
+
+def n1deg(T):
+    return [v for v, d2 in T.degree() if d2 == 1]
+
+
+def nOdeg(T):
+    return [v for v, d2 in T.degree() if d2 % 2 == 1]

@@ -2,15 +2,13 @@ import RPi.GPIO as GPIO
 import time
 GPIO.setmode(GPIO.BCM)
 
-ENABLED = 0
-
 resolution = {'Full': (0, 0, 0),
               'Half': (1, 0, 0),
               '1/4': (0, 1, 0),
               '1/8': (1, 1, 0),
               '1/16': (1, 1, 1)}
 
-MODE = resolution['1/8']
+# MODE = resolution['1/16']
 
 pSlp = 12
 pRes = (14, 15, 18)
@@ -34,28 +32,21 @@ GPIO.output(pDir1, 0)
 GPIO.output(pStp2, 0)
 GPIO.output(pDir2, 0)
 
-stepDelay = 0.001
-
-def toggle(onoff):
-    ENABLED = onoff
-    GPIO.output(pSlp, ENABLED)
+stepdelay = 0.0001
 
 def turnOn():
-    ENABLED = 1
-    GPIO.output(pSlp, ENABLED)
+    GPIO.output(pSlp, 0) # Active low
 
 def turnOff():
-    ENABLED = 0
-    GPIO.output(pSlp, ENABLED)
+    GPIO.output(pSlp, 1)
 
 def setRes(res):
     MODE = resolution[res]
+    print(resolution[res])
     GPIO.output(pRes, resolution[res])
 
 def step(mn, mdir):
-    if not ENABLED:
-        toggle(1)
-
+    print(mn, mdir)
     msPin = pStp1 if mn == 1 else pStp2
     mdPin = pDir1 if mn == 1 else pDir2
     GPIO.output(mdPin, 1 if mdir == 1 else 0)
@@ -68,12 +59,35 @@ def stepsPerRev():
     exp = MODE[2]*4 + MODE[1]*2 + MODE[0]
     return 200 * 2**exp
 
-toggle(ENABLED)
-setRes('1/8')
+# DISABLED = 0
+setRes('1/4')
+print('222ee')
+# turnOff()
+# time.sleep(2)
+# turnOn()
+# time.sleep(2)
+# turnOff()
+# time.sleep(2)
+# turnOn()
+# time.sleep(2)
+# turnOff()
+# time.sleep(2)
+turnOn()
+# DISABLED = 0
+# print('333')
+# for x in range(1,400):
+#     print('st')
+#     step(1, 0)
+#     time.sleep(0.01)
+# # for x in range(1,200):
+#     # print('st')
+#     step(0, 1)
+#     # time.sleep(0.01)
+# # time.sleep(2)
 
-# for x in range(1,1600):
-#     step(1, 1)
-#     time.sleep(0.005)
+# turnOff()
+# time.sleep(200)
 
-# good practise to cleanup GPIO at some point before exit
-GPIO.cleanup()
+# # turnOn()
+# # good practise to cleanup GPIO at some point before exit
+# GPIO.cleanup()
