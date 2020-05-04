@@ -1,0 +1,26 @@
+Altium Designer Pick and Place Locations
+Z:\Private\bbernstein\ProfDev\Altium\Output\MotorBoard\Pick Place\Pick Place for MotorBoard.csv
+
+========================================================================================================================
+File Design Information:
+
+Date:       05/02/20
+Time:       22:32
+Revision:   44
+Variant:    No variations
+Units used: mil
+
+"Designator","Comment","Layer","Footprint","Center-X(mil)","Center-Y(mil)","Rotation","Description"
+"C2","CAP 100nF 10V 0603(1608)","BottomLayer","CAPC0603(1608)100_M","-260.000","10.000","360","CAP 100nF 10V ±10% 0603 (1608 Metric) Thickness 1mm SMD"
+"U1","A4988 Header","TopLayer","A4988_Header-Footprint-1","0.000","0.000","90","Female Header pins for the A4988 Motor Driver Carrier"
+"R7","RC0603FR-07100KL","TopLayer","RESC1608X55X25ML10T15","535.000","-145.000","180","Chip Resistor, 100 KOhm, +/- 1%, 0.1 W, -55 to 155 degC, 0603 (1608 Metric), RoHS, Tape and Reel"
+"R6","RC0603FR-07100KL","TopLayer","RESC1608X55X25ML10T15","525.000","-45.000","180","Chip Resistor, 100 KOhm, +/- 1%, 0.1 W, -55 to 155 degC, 0603 (1608 Metric), RoHS, Tape and Reel"
+"R5","RC0603FR-07100KL","BottomLayer","RESC1608X55X25ML10T15","355.000","-10.000","180","Chip Resistor, 100 KOhm, +/- 1%, 0.1 W, -55 to 155 degC, 0603 (1608 Metric), RoHS, Tape and Reel"
+"R4","RC0603FR-07100KL","BottomLayer","RESC1608X55X25ML10T15","-270.000","-55.000","360","Chip Resistor, 100 KOhm, +/- 1%, 0.1 W, -55 to 155 degC, 0603 (1608 Metric), RoHS, Tape and Reel"
+"P3","282836-2","TopLayer","TECO-282836-2_V","-220.000","-610.000","360","Female Header, Pitch 5 mm, 1 x 2 Position, Height 10 mm, Tail Length 3.5 mm, Rohs, Bulk"
+"P2","TSM-104-01-L-SH","TopLayer","SMTC-TSM-104-01-X-SH","0.000","512.313","360","0.025" SQ Post Header, Surface Mount, Horizontal, -55 to 125 degC, 2.54 mm Pitch, 4-Pin, Male, RoHS"
+"R2","RC0603FR-07100KL","BottomLayer","RESC1608X55X25ML10T15","355.000","52.736","180","Chip Resistor, 100 KOhm, +/- 1%, 0.1 W, -55 to 155 degC, 0603 (1608 Metric), RoHS, Tape and Reel"
+"R1","RC0603FR-07100KL","BottomLayer","RESC1608X55X25ML10T15","355.000","-75.000","180","Chip Resistor, 100 KOhm, +/- 1%, 0.1 W, -55 to 155 degC, 0603 (1608 Metric), RoHS, Tape and Reel"
+"P1","FTSH-105-01-F-DV-K","TopLayer","SMTC-FTSH-105-01-L-DV-K_V","220.000","-540.000","360","Male Header, Pitch 1.27 mm, 2 x 5 Position, Height 6.12 mm, RoHS, Tube"
+"IC2","AS5600-ASOM","BottomLayer","SOIC127P600X175-8N","0.000","0.000","360","SENSOR ANGLE 360DEG SMD"
+"C1","EEEFK1E101XP","TopLayer","PNSC-FK-V-D8_V","-615.000","115.000","270","Aluminum Electrolytic Capacitor, 100 uF, +/- 20%, 25 V, 2-Pin SMD (Size Code D8), -55 to 105 degC, RoHS, Tape and Reel"

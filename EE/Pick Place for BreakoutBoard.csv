@@ -1,0 +1,28 @@
+Altium Designer Pick and Place Locations
+Z:\Private\bbernstein\ProfDev\Altium\Output\BreakoutBoard\Pick Place\Pick Place for BreakoutBoard.csv
+
+========================================================================================================================
+File Design Information:
+
+Date:       05/02/20
+Time:       22:26
+Revision:   43
+Variant:    No variations
+Units used: mil
+
+"Designator","Comment","Layer","Footprint","Center-X(mil)","Center-Y(mil)","Rotation","Description"
+"D2","MBR0540","TopLayer","FAIR-SOD123-2_V","485.000","430.000","360","Schottky Rectifier, 40 V, 0.5 A, 2-Pin SOD-123, RoHS, Tape and Reel"
+"D1","MBR0540","TopLayer","FAIR-SOD123-2_V","-380.000","660.000","270","Schottky Rectifier, 40 V, 0.5 A, 2-Pin SOD-123, RoHS, Tape and Reel"
+"C1","CAP 100nF 10V 0603(1608)","TopLayer","CAPC0603(1608)100_M","-145.000","0.000","270","CAP 100nF 10V ±10% 0603 (1608 Metric) Thickness 1mm SMD"
+"I2C","PCA9540BDP,118","TopLayer","TSOP65P490X110-8N","0.000","0.000","270","IC I2C MUX 2CH 8-TSSOP"
+"R6","RC0603FR-07100KL","TopLayer","RESC1608X55X25ML10T15","-340.000","190.000","90","Chip Resistor, 100 KOhm, +/- 1%, 0.1 W, -55 to 155 degC, 0603 (1608 Metric), RoHS, Tape and Reel"
+"R5","RC0603FR-07100KL","TopLayer","RESC1608X55X25ML10T15","-469.252","299.527","270","Chip Resistor, 100 KOhm, +/- 1%, 0.1 W, -55 to 155 degC, 0603 (1608 Metric), RoHS, Tape and Reel"
+"R4","RC0603FR-07100KL","TopLayer","RESC1608X55X25ML10T15","-480.000","439.527","270","Chip Resistor, 100 KOhm, +/- 1%, 0.1 W, -55 to 155 degC, 0603 (1608 Metric), RoHS, Tape and Reel"
+"R2","RC0603FR-07100KL","TopLayer","RESC1608X55X25ML10T15","165.000","-30.000","180","Chip Resistor, 100 KOhm, +/- 1%, 0.1 W, -55 to 155 degC, 0603 (1608 Metric), RoHS, Tape and Reel"
+"R1","RC0603FR-07100KL","TopLayer","RESC1608X55X25ML10T15","165.000","45.000","180","Chip Resistor, 100 KOhm, +/- 1%, 0.1 W, -55 to 155 degC, 0603 (1608 Metric), RoHS, Tape and Reel"
+"CB","FTSH-105-01-F-DV-K","TopLayer","SMTC-FTSH-105-01-L-DV-K_V","700.000","220.000","90","Male Header, Pitch 1.27 mm, 2 x 5 Position, Height 6.12 mm, RoHS, Tube"
+"CA","FTSH-105-01-F-DV-K","TopLayer","SMTC-FTSH-105-01-L-DV-K_V","-700.000","220.000","270","Male Header, Pitch 1.27 mm, 2 x 5 Position, Height 6.12 mm, RoHS, Tube"
+"JP","PJ-002BH-SMT-TR","TopLayer","CUI-PJ-002BH-SMT_V","0.000","-600.000","90","DC Power Jack, 24 V, -25 to 85 degC, 3-Pin SMD, RoHS, Bulk"
+"PB","282836-2","TopLayer","TECO-282836-2_V","715.000","-330.000","90","Female Header, Pitch 5 mm, 1 x 2 Position, Height 10 mm, Tail Length 3.5 mm, Rohs, Bulk"
+"PA","282836-2","TopLayer","TECO-282836-2_V","-715.000","-330.000","270","Female Header, Pitch 5 mm, 1 x 2 Position, Height 10 mm, Tail Length 3.5 mm, Rohs, Bulk"
+"J1","SSW-106-01-T-D","TopLayer","SMTC-SSW-106-01-X-D","0.000","435.000","180","SQ Post Socket, Through-hole, Vertical, -55 to 105 degC, 2.54mm Pitch, 12-Pin, Female, RoHS"
