@@ -24,7 +24,7 @@
     let points, dist, numsteps, stepsto;
     let coord = [100, 100];
     let speed = 10; // px per sec
-    const FPS = 60;
+    const FPS = 30;
     let stepPerPix = FPS / speed; // How many virtual steps to take per pixel distance
     const BIAS = 50; // Client has slight constant lag. Increase to make client earlier
 
@@ -143,6 +143,6 @@
         });
     }
 
-    function ClearScreen() { c.clearRect(0, 0, 1200, 700); }
+    function ClearScreen() { c.clearRect(0, 0, 2000, 2000); }
 </script>
 </html>

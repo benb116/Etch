@@ -2,6 +2,7 @@ import numpy as np
 from scipy.ndimage import convolve, gaussian_filter
 import networkx as nx
 
+
 def rgb2gray(I_rgb):
     r, g, b = I_rgb[:, :, 0], I_rgb[:, :, 1], I_rgb[:, :, 2]
     I_gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
@@ -24,9 +25,9 @@ def blur(line):
 
 
 def thinOut(line):
-  kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
-  c = convolve(line, kernel, mode='constant')
-  return np.multiply((c < 3), line) > 0
+    kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
+    c = convolve(line, kernel, mode='constant')
+    return np.multiply((c < 3), line) > 0
 
 
 def despeck(line):

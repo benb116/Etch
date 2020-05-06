@@ -29,7 +29,7 @@ def updEdge(nIg, thr):
     Mag, Magx, Magy, Ori = findDerivatives(line)
     M = nonMaxSup(Mag, Ori)
 
-  print(thr)
+  # print(thr)
   oline = (M & (Mag > thr))
 
   oline = thinOut(oline)
@@ -40,10 +40,10 @@ def updEdge(nIg, thr):
   oline[-4:,:] = 0
   oline[:,-4:] = 0
 
-  # plt.imshow(oline)
-  # plt.show()
-  print('Line done')
-  print('aaaaa', np.sum(oline))
+  plt.imshow(oline)
+  plt.show()
+  # print('Line done')
+  print('Num edge points', np.sum(oline))
   # cities = getCities(line.astype(bool))
   return oline
 
@@ -69,7 +69,7 @@ def getEdgePoints(Ig):
 
   # plt.imshow(line)
   # plt.show()
-  print('Line done')
+  # print('Line done')
 
   # cities = getCities(line.astype(bool))
   return line
