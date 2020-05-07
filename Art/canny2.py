@@ -1,4 +1,5 @@
 from PIL import Image
+from artUtils import *
 import os
 import sys
 import numpy as np
@@ -6,7 +7,6 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import RectBivariateSpline
 from scipy import signal
 from scipy.ndimage import convolve, gaussian_filter
-import networkx as nx
 
 uIg = []
 uline = []
@@ -159,11 +159,12 @@ def getCities(line):
   return cities
 
 if __name__ == '__main__':
-  folder = '/Users/Ben/Desktop/'
-  im_path = os.path.join(folder, 'test.jpg')
+  folder = '/Users/Ben/Desktop/Etch'
+  im_path = os.path.join(folder, 'Steve.jpg')
 
   I = np.array(Image.open(im_path).convert('RGB'))
-  line = getEdgePoints(I)
+  Ig = rgb2gray(I)
+  line = updEdge(Ig, 100000)
   # cities = getCities(line.astype(bool))
   # np.set_printoptions(threshold=sys.maxsize)
   # print(np.array2string(cities, separator=','))

@@ -1,4 +1,4 @@
-from canny2 import updEdge
+from canny3 import extractEdges
 from artUtils import *
 
 import networkx as nx
@@ -6,9 +6,9 @@ import itertools
 import pandas as pd
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial import distance_matrix
-from scipy.ndimage import convolve, gaussian_filter
+from scipy.ndimage import convolve
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider, Button, TextBox
+# from matplotlib.widgets import Slider, Button, TextBox
 import numpy as np
 import sys
 import os
@@ -16,14 +16,15 @@ from PIL import Image
 
 
 # Binning and hatching parameters
-ints = np.array([10, 10, 20, 40, 60, 170]) # Brightness cutoffs
-spacing = np.array([5, 5, 9, 15, 19, 0]) # Corresponding line densities
-orientation = np.array([-1, 1, -1, 1, -1, 1]) # Direction (not all the same way)
-offset = np.array([0, 0, 0, 0, 0, 0]) # Any offsets
-thresh = 75000 # Canny edge threshold
+ints = np.array([20, 20, 40, 70, 90, 150])  # Brightness cutoffs
+spacing = np.array([7, 7, 13, 15, 19, 0])  # Corresponding line densities
+orientation = np.array([-1, 1, -1, 1, -1, 1])  # Direction (not all the same way)
+offset = np.array([0, 0, 0, 0, 0, 0])  # Any offsets
+thresh = 75000  # Canny edge threshold
 
 folder = '/Users/Ben/Desktop/Etch/'
-im_path = os.path.join(folder, 'Girl2.jpg')
+jpgname = 'Sweet'
+im_path = os.path.join(folder, jpgname+'.jpg')
 Im = np.array(Image.open(im_path).convert('RGB'))
 Ig = rgb2gray(Im)
 
@@ -37,13 +38,13 @@ hatchedgim = [[] for i in ints]
 
 
 def main():
-    global Ig, blurred, thresh # Find a better way than global vars
+    global Ig, blurred, thresh  # Find a better way than global vars
     Ig = rgb2gray(Im)
-    blurred = blur(Ig) # Smooth out any small specks
+    blurred = blur(Ig)  # Smooth out any small specks
     # Build up a matrix from various bins and operations
-    sumImage = Update(0, 0, 0, 0, 1) # Edge detection
-    sumImage = Update(1, 0, 0, 0, 0) # Set up bin images
-    sumImage = Update(0, 1, 0, 0, 0) # Hatch the bin images
+    sumImage = Update(0, 0, 0, 0, 1)  # Edge detection
+    sumImage = Update(1, 0, 0, 0, 0)  # Set up bin images
+    sumImage = Update(0, 1, 0, 0, 0)  # Hatch the bin images
     sumImage = Update(0, 2, 0, 0, 0)
     sumImage = Update(0, 3, 0, 0, 0)
     sumImage = Update(0, 4, 0, 0, 0)
@@ -54,25 +55,26 @@ def main():
     print('Start graph work')
     G, stops = genGraph(alledges)
 
-    # np.set_printoptions(threshold=sys.maxsize)
+    print('Write to file')
+    np.set_printoptions(threshold=sys.maxsize)
     stopstring = 'asd'
-    # stopstring = np.array_str(stops, separator=',')
+    stopstring = np.array2string(stops, separator=',')
     # print(stopstring)
-    file1 = open("Stops.txt", "w")
+    file1 = open(jpgname+".txt", "w")
     file1.write(stopstring)
     file1.close()
-
     # Checks
-    print(list(G.degree()))
-    print(len(nOdeg(G)))
-    print(nx.is_eulerian(G))
+    # print(list(G.degree()))
+    # print(len(nOdeg(G)))
+    # print(nx.is_eulerian(G))
 
 
 def Update(nint, sp, ori, off, edge):
     if edge:
         print('Run edge detection')
         global edIm, canedges
-        edIm = updEdge(Ig, thresh)
+        edIm = extractEdges(im_path)
+        print('Link edge detection')
         canedges = ConnectCanny(edIm)
     if nint:
         print('Bin images')
@@ -103,6 +105,7 @@ def Update(nint, sp, ori, off, edge):
 # Link up adjacent points returned from edge detection
 def ConnectCanny(cIm):
     cpts = getCities(cIm)
+    print('ConnectCanny', len(cpts))
     cd = distance_matrix(cpts, cpts)
     np.fill_diagonal(cd, 100000)
     ca = cd < 2
@@ -114,7 +117,7 @@ def ConnectCanny(cIm):
 # Create evenly-spaced lines in a matrix
 # shape: size of matrix
 # direction: (1 or -1) * 45 deg
-# spacing: # of pixels between lines
+# spacing:  # of pixels between lines
 # offset: shift left or right (so hatches don't overlap each other)
 def buildHatch(shape, direction, spacing, offset):
     a = np.zeros(shape)
@@ -135,8 +138,8 @@ def createDiagEdges(mask, ori):
     c = convolve(mask.astype(int), kernel, mode='constant')
     # These points that are also in the mask are the good ones
     startN = (c == 1) & mask
-    cities = getCities(startN) # Get the XY coords
-    cities = [p for p in cities if ((p[0] != 0) & (p[1] != 0))] # Filter out zeros
+    cities = getCities(startN)  # Get the XY coords
+    cities = [p for p in cities if ((p[0] != 0) & (p[1] != 0))]  # Filter out zeros
 
     # Their neighbors are below them (and left or right)
     nextCitiesX = np.array([x[0] for x in cities]) + ori
@@ -166,7 +169,7 @@ def ConnectSubgraphs(G, d):
     while len(list(nx.connected_components(G))) > 1:
         print('Subgraph loop')
         for i, sg in enumerate(sub_graphs):
-            sg_nodes = list(sg) # Get all nodes in the subgraph
+            sg_nodes = list(sg)  # Get all nodes in the subgraph
             # Get distances to other nodes not in the subgraph
             A = d[sg_nodes, :]
             A[:, sg_nodes] = 100000
@@ -286,7 +289,7 @@ def PathFinder(G, d):
         A[t, lk] = lv
 
     # Only look at odd to odd paths
-    np.fill_diagonal(A, 1000000) # No self loops
+    np.fill_diagonal(A, 1000000)  # No self loops
     A2 = A[nO, :]
     A2 = A2[:, nO]
     
@@ -332,17 +335,17 @@ def genGraph(es):
     allnodes = [item for sublist in allnodes for item in sublist]
     allnodes = list(set(allnodes))
     negnodes = [(n[0], -n[1]) for n in allnodes]
-    # Create dicts that can translate between node # and node coord
+    # Create dicts that can translate between node  # and node coord
     nnodes = {v: k for k, v in enumerate(allnodes)}
     dnodes = {k: v for k, v in enumerate(allnodes)}
     ndnodes = {k: v for k, v in enumerate(negnodes)}
-    # Add the edges with node #'s instead of coords (makes things easier)
+    # Add the edges with node  #'s instead of coords (makes things easier)
     nwedges = list(map(lambda e: (nnodes[e[0]], nnodes[e[1]], e[2]), wedges))
     G.add_weighted_edges_from(nwedges)
 
     # Create a distance matrix for all nodes to all other nodes
     d = distance_matrix(allnodes, allnodes)
-    np.fill_diagonal(d, 100000) # No self loops
+    np.fill_diagonal(d, 100000)  # No self loops
     # This will prevent certain steps from adding parallel edges
     a = nx.adjacency_matrix(G) 
     d = d + a * 100000
@@ -350,28 +353,28 @@ def genGraph(es):
     # Need an eulerian circuit
     # One component, no odd degree nodes
     # Where do we stand
-    print("Num Odd", len(nOdeg(G))) # Number of odd degree nodes
-    print("Num One", len(n1deg(G))) # Number of degree one nodes
+    print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
+    print("Num One", len(n1deg(G)))  # Number of degree one nodes
     print("Num components", len(list(nx.connected_components(G))))
 
     # Connect any separate subgraphs into one
     print('Connect Subgraphs')
     G, d = ConnectSubgraphs(G, d)
-    print("Num Odd", len(nOdeg(G))) # Number of odd degree nodes
-    print("Num One", len(n1deg(G))) # Number of degree one nodes
+    print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
+    print("Num One", len(n1deg(G)))  # Number of degree one nodes
     print("Num components", len(list(nx.connected_components(G))))
 
     # Add a parallel edge to any d1 node with an odd node as a neighbor
     print('EasyLinkOne')
     G, d = EasyLinkOne(G, d)
-    print("Num Odd", len(nOdeg(G))) # Number of odd degree nodes
-    print("Num One", len(n1deg(G))) # Number of degree one nodes
+    print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
+    print("Num One", len(n1deg(G)))  # Number of degree one nodes
 
     # Add a parallel edge to any odd node with an odd node as a neighbor
     print('EasyLinkOdd')
     G, d = EasyLinkOdd(G, d)
-    print("Num Odd", len(nOdeg(G))) # Number of odd degree nodes
-    print("Num One", len(n1deg(G))) # Number of degree one nodes
+    print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
+    print("Num One", len(n1deg(G)))  # Number of degree one nodes
     # nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
     # nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
     # plt.axis('scaled')
@@ -381,8 +384,8 @@ def genGraph(es):
     # This may create new edges
     print('LinkDegOne')
     G, d = LinkDegOne(G, d)
-    print("Num Odd", len(nOdeg(G))) # Number of odd degree nodes
-    print("Num One", len(n1deg(G))) # Number of degree one nodes
+    print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
+    print("Num One", len(n1deg(G)))  # Number of degree one nodes
     # nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
     # nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
     # plt.axis('scaled')
@@ -392,26 +395,26 @@ def genGraph(es):
     # This may create new edges
     print('LinkDegOdd')
     G, d = LinkDegOdd(G, d)
-    print("Num Odd", len(nOdeg(G))) # Number of odd degree nodes
-    print("Num One", len(n1deg(G))) # Number of degree one nodes
-    # nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
-    # nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
-    # plt.axis('scaled')
-    # plt.show()
-
-    # Match remaining odd nodes with longer parallel paths
-    print('FinalOdd')
-    G, d = PathFinder(G, d)
-    print("Num Odd", len(nOdeg(G))) # Number of odd degree nodes
-    print("Num One", len(n1deg(G))) # Number of degree one nodes
+    print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
+    print("Num One", len(n1deg(G)))  # Number of degree one nodes
     nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
     nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
     plt.axis('scaled')
     plt.show()
 
+    # Match remaining odd nodes with longer parallel paths
+    print('FinalOdd')
+    G, d = PathFinder(G, d)
+    print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
+    print("Num One", len(n1deg(G)))  # Number of degree one nodes
+    # nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
+    # nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
+    # plt.axis('scaled')
+    # plt.show()
+
     print('Begin Eulerian')
     stops = [list(dnodes[u]) for u, v in nx.eulerian_circuit(G)]
-
+    stops = np.array(stops)
     return G, stops
 
 
