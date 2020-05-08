@@ -9,9 +9,9 @@ This repository contains the following:
 * RPi files for the server and motor/sensor integration
 * Python scripts for generating art files from images
 
-###Hardware
+### Hardware
 
-Lineograph is built around a Raspberry Pi connected to a TV and two stepper motors. The Pi is connected to a custom breakout board that links with two other custom boards mounted to the back of the motors.
+Etch is built around a Raspberry Pi connected to a TV and two stepper motors. The Pi is connected to a custom breakout board that links with two other custom boards mounted to the back of the motors.
 
 The motor boards serve two functions:
 
@@ -20,7 +20,7 @@ The motor boards serve two functions:
 
 The motors, shaft couplers, and knobs are mounted to two brackets that are adhered to the TV. Lasercut polystyrene sheets form the outer shell and are positioned using internal ribs.
 
-###Software
+### Software
 
 The Pi runs a Python webserver that integrates with the motors and sensors. The server communicates with a webpage running in a browser that is displayed on the screen. A websocket connection passes information back and forth about art data, timing, and user input. In AUTO Mode, the server also runs through a script of artwork to display.
 
@@ -28,9 +28,15 @@ Art files contain the lists of points in order of travel. They also include info
 
 * ImageGen.py - Take a full image and generate a path that traces contours and fills in darker regions.
 * PathFinder.py - Identifies the path in a single line drawing
-* DIY - Any method that outputs a series of points to be followed linearly could be used.
+* DIY - You can use any method that outputs a series of line segments
 
-##Acknowledgements
+## Further work
+- [ ] Improve artwork generation algorithms
+- [ ] Upgrade the custom PCBs
+- [ ] Develop a show script
+- [ ] Add user input to toggle between AUTO and MANUAL
+
+## Acknowledgements
 
 A big thanks to many people and organizations for their help and advice on this project.
 
