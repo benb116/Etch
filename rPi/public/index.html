@@ -126,8 +126,8 @@
     // Draw a virtual step line segment
     function DrawStep(p1, p2) {
         c.beginPath();
-        c.moveTo(p1[0], p1[1]);
-        c.lineTo(p2[0], p2[1]);
+        c.moveTo(p1[0]+400, p1[1]);
+        c.lineTo(p2[0]+400, p2[1]);
         c.stroke();
         coord = p2; // Update latest coordinate
     }

@@ -4,8 +4,15 @@ from flask_socketio import SocketIO, emit
 import time
 import threading
 import json
-from RPi import GPIO
-GPIO.setmode(GPIO.BCM)
+
+from integration.pi_utils import IsRPi
+
+onboard = False
+if IsRPi():
+    onboard = True
+    from RPi import GPIO
+    GPIO.setmode(GPIO.BCM)
+    from integration.encoder import readAngle
 
 def readAngle():
     pass
@@ -14,8 +21,6 @@ def genThreads(a, b, c, d):
     pass
 
 from integration.auto import genThreads
-
-from integration.encoder import readAngle
 
 app = Flask(__name__, static_folder='public')
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -84,9 +89,10 @@ bitsPerStep = 20
 oldVal = [0, 0]
 
 def InitManual():
-    # motors.toggle(0)
-    # oldVal[0] = readAngle(0)
-    # oldVal[1] = readAngle(1)
+    if onboard:
+        motors.toggle(0)
+    oldVal[0] = readAngle(0)
+    oldVal[1] = readAngle(1)
     print('InitManual')
     while ~AUTO:
         # print('check')

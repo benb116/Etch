@@ -2,26 +2,30 @@ import time
 import threading
 from math import sqrt
 
-from . import motors
-import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BCM)
+from . import pi_utils
 
-pSlp = 12
-pRes = (14, 15, 18)
+onboard = False
+if pi_utils.IsRPi():
+    from . import motors
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM)
 
-pStp1 = 21
-pDir1 = 20
-pStp2 = 26
-pDir2 = 19
+    pSlp = 12
+    pRes = (14, 15, 18)
 
-GPIO.setup(pSlp, GPIO.OUT)
-GPIO.setup(pRes, GPIO.OUT)
-GPIO.setup(pStp1, GPIO.OUT)
-GPIO.setup(pDir1, GPIO.OUT)
-GPIO.setup(pStp2, GPIO.OUT)
-GPIO.setup(pDir2, GPIO.OUT)
+    pStp1 = 21
+    pDir1 = 20
+    pStp2 = 26
+    pDir2 = 19
 
-motors.turnOn()
+    GPIO.setup(pSlp, GPIO.OUT)
+    GPIO.setup(pRes, GPIO.OUT)
+    GPIO.setup(pStp1, GPIO.OUT)
+    GPIO.setup(pDir1, GPIO.OUT)
+    GPIO.setup(pStp2, GPIO.OUT)
+    GPIO.setup(pDir2, GPIO.OUT)
+
+# motors.turnOn()
 
 stepsPerRev = 200
 # stepsPerRev = motors.stepsPerRev() # Stepper motor takes in n steps to turn a full 360 deg
@@ -108,9 +112,9 @@ def initInterval(tms, n, fn, intN):
 # Returns a fn that makes a motor step in a direction
 def createStepFn(mn, dir):
     def s():
+        if onboard:
+            motors.step(mn, dir)
         # print(mn*dir)
-        motors.step(mn, dir)
-        # step(mn, dir)
         pass
     return s
 

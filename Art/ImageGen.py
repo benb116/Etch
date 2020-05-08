@@ -16,8 +16,8 @@ from PIL import Image
 
 
 # Binning and hatching parameters
-ints = np.array([20, 20, 40, 70, 90, 150])  # Brightness cutoffs
-spacing = np.array([7, 7, 13, 15, 19, 0])  # Corresponding line densities
+ints = np.array([20, 20, 30, 70])  # Brightness cutoffs
+spacing = np.array([7, 7, 13, 15])  # Corresponding line densities
 orientation = np.array([-1, 1, -1, 1, -1, 1])  # Direction (not all the same way)
 offset = np.array([0, 0, 0, 0, 0, 0])  # Any offsets
 thresh = 75000  # Canny edge threshold
@@ -44,11 +44,9 @@ def main():
     # Build up a matrix from various bins and operations
     sumImage = Update(0, 0, 0, 0, 1)  # Edge detection
     sumImage = Update(1, 0, 0, 0, 0)  # Set up bin images
-    sumImage = Update(0, 1, 0, 0, 0)  # Hatch the bin images
-    sumImage = Update(0, 2, 0, 0, 0)
-    sumImage = Update(0, 3, 0, 0, 0)
-    sumImage = Update(0, 4, 0, 0, 0)
-    sumImage = Update(0, 5, 0, 0, 0)
+    for i in range(0, len(ints)-1):
+        sumImage = Update(0, i+1, 0, 0, 0)  # Hatch the bin images
+
 
     plt.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
     plt.show()
