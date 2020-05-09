@@ -6,7 +6,9 @@ Along with a Raspberry Pi, Etch utilized two unique custom PCBs to route signals
 2. Breakout board - Mounted in the center of the TV, this PCB routes signals from the Pi to the correct board. It also distributes motor power.
 
 ## Motor Board
-![Image](https://github.com/benb116/Etch/raw/master/EE/MotorBoard/Motor%20Board%20Schematic.png)
+![Schematic](https://github.com/benb116/Etch/raw/master/EE/MotorBoard/Motor%20Board%20Schematic.png)
+
+![RenderFront](https://github.com/benb116/Etch/raw/master/EE/MotorBoard/Motor%20front.png)![RenderBack](https://github.com/benb116/Etch/raw/master/EE/MotorBoard/Motor%20back.png)
 
 The Motor Board is designed to fit on the back of a standard NEMA-17 stepper motor. It accepts power and a 10-pin signal cable from the Breakout Board. The signals are:
 
@@ -28,6 +30,9 @@ Along with support components and connectors, the PCB has two main parts:
 	- Note: Data is read from the sensor over I2C. The sensor has a fixed I2C address, so a 2-channel i2c bus multiplexer is required (see Breakout Board)
 
 ## Breakout Board
+![Schematic](https://github.com/benb116/Etch/raw/master/EE/BreakoutBoard/Breakout%20Board%20Schematic.png)
+
+![RenderFront](https://github.com/benb116/Etch/raw/master/EE/MotorBoard/Breakout%20front.png)
 
 The Breakout Board mainly routes signals and power between the Pi and the two Motor Boards. It accepts power from a DC jack and 12 signals from the Pi via jumper cable:
 
