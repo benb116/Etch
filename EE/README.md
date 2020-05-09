@@ -32,7 +32,7 @@ Along with support components and connectors, the PCB has two main parts:
 ## Breakout Board
 ![Schematic](https://github.com/benb116/Etch/raw/master/EE/BreakoutBoard/Breakout%20Board%20Schematic.png)
 
-![RenderFront](https://github.com/benb116/Etch/raw/master/EE/MotorBoard/Breakout%20front.png)
+![RenderFront](https://github.com/benb116/Etch/raw/master/EE/BreakoutBoard/Breakout%20front.png)
 
 The Breakout Board mainly routes signals and power between the Pi and the two Motor Boards. It accepts power from a DC jack and 12 signals from the Pi via jumper cable:
 
