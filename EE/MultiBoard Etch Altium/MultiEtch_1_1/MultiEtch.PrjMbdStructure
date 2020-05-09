@@ -1,7 +1,0 @@
-Record=TopLevelDocument|FileName=MultiBoardAssembly.MbaDoc
-Record=DiagramHierarchy|SourceDocument=MultiBoardSchematic1.MbsDoc|Kind=Multi-board Schematic Module|Designator=BRK|Source=..\BreakoutBoard\BreakoutBoard.PrjPcb
-Record=SubProject|SourceDocument=MultiBoardSchematic1.MbsDoc|ProjectPath=..\BreakoutBoard\BreakoutBoard.PrjPcb
-Record=DiagramHierarchy|SourceDocument=MultiBoardSchematic1.MbsDoc|Kind=Multi-board Schematic Module|Designator=MB2|Source=..\PCB_ProjectTest\MotorBoard.PrjPcb
-Record=SubProject|SourceDocument=MultiBoardSchematic1.MbsDoc|ProjectPath=..\PCB_ProjectTest\MotorBoard.PrjPcb
-Record=DiagramHierarchy|SourceDocument=MultiBoardSchematic1.MbsDoc|Kind=Multi-board Schematic Module|Designator=MB1|Source=..\PCB_ProjectTest\MotorBoard.PrjPcb
-Record=SubProject|SourceDocument=MultiBoardSchematic1.MbsDoc|ProjectPath=..\PCB_ProjectTest\MotorBoard.PrjPcb

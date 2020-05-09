@@ -1,6 +1,6 @@
 # Etch
 
-Etch is an auto-drawing digital Etch a Sketch built on top of a Raspberry Pi. Stepper motors mounted under a television turn 3D printed knobs to match the drawing motion on the screen. The knobs can also be turned by hand to manually draw lines and curves on the display.
+Etch is an auto-drawing digital Etch a Sketch built on top of a Raspberry Pi. Stepper motors mounted under a television turn 3D printed knobs to match the drawing motion on the screen. The knobs can also be turned by hand to manually draw lines on the display.
 
 This repository contains the following:
 
@@ -26,8 +26,8 @@ The Pi runs a Python webserver that integrates with the motors and sensors. The 
 
 Art files contain the lists of points in order of travel. They also include information about drawing speed and knob rotation rates. These files can be generated with different methods:
 
-* ImageGen.py - Take a full image and generate a path that traces contours and fills in darker regions.
-* PathFinder.py - Identifies the path in a single line drawing
+* [ImageGen.py](https://github.com/benb116/Etch/blob/master/Art/ImageGen.py) - Take a full image and generate a path that traces contours and fills in darker regions.
+* [PathFinder.py](https://github.com/benb116/Etch/blob/master/Art/pathfinder.py) - Identifies the path in a single line drawing
 * DIY - You can use any method that outputs a series of line segments
 
 ## Further work

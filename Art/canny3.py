@@ -29,8 +29,8 @@ def extractEdges(imagePath):
     # apply Canny edge detection using a wide threshold, tight
     # threshold, and automatically determined threshold
     auto = despeck(auto_canny(blurred))
-    plt.imshow(despeck(np.array(auto)))
-    plt.show()
+    # plt.imshow(despeck(np.array(auto)))
+    # plt.show()
     return auto
 
 
@@ -40,5 +40,5 @@ if __name__ == '__main__':
 
     auto = extractEdges(imagePath)
     # show the image
-    plt.imshow(despeck(np.array(auto)))
-    plt.show()
+    # plt.imshow(despeck(np.array(auto)))
+    # plt.show()

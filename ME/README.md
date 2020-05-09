@@ -57,3 +57,6 @@ Some notes about specific parts:
 4. Carefully press the knobs onto the shaft couplers.
 5. Mount the RPi and other electronics to the back of the TV using tape or zipties. Connect the RPi to the TV's HDMI port.
 6. Connect the signal and power wires from the Breakout Board to the Motor Boards
+
+## Further work
+- [ ] Add a button to toggle between AUTO and MANUAL
