@@ -1,3 +1,4 @@
+from canny2 import updEdge
 from canny3 import extractEdges
 from artUtils import *
 
@@ -16,14 +17,13 @@ from PIL import Image
 
 
 # Binning and hatching parameters
-ints = np.array([20, 20, 30, 70])  # Brightness cutoffs
+ints = np.array([30, 30, 120, 220])  # Brightness cutoffs
 spacing = np.array([7, 7, 13, 15])  # Corresponding line densities
-orientation = np.array([-1, 1, -1, 1, -1, 1])  # Direction (not all the same way)
-offset = np.array([0, 0, 0, 0, 0, 0])  # Any offsets
-thresh = 75000  # Canny edge threshold
+orientation = np.array([-1, 1, -1, 1])  # Direction (not all the same way)
+offset = np.array([0, 0, 0, 0])  # Any offsets
 
 folder = '/Users/Ben/Desktop/Etch/'
-jpgname = 'Sweet'
+jpgname = 'Albert'
 im_path = os.path.join(folder, jpgname+'.jpg')
 Im = np.array(Image.open(im_path).convert('RGB'))
 Ig = rgb2gray(Im)
@@ -46,7 +46,6 @@ def main():
     sumImage = Update(1, 0, 0, 0, 0)  # Set up bin images
     for i in range(0, len(ints)-1):
         sumImage = Update(0, i+1, 0, 0, 0)  # Hatch the bin images
-
 
     plt.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
     plt.show()
@@ -72,6 +71,7 @@ def Update(nint, sp, ori, off, edge):
         print('Run edge detection')
         global edIm, canedges
         edIm = extractEdges(im_path)
+        # edIm = updEdge(Ig, 70000)
         print('Link edge detection')
         canedges = ConnectCanny(edIm)
     if nint:
@@ -100,17 +100,21 @@ def Update(nint, sp, ori, off, edge):
     sumImage = despeck(sumImage)
     return sumImage
 
+
 # Link up adjacent points returned from edge detection
 def ConnectCanny(cIm):
+    plt.imshow(1-cIm, cmap='gray', vmin=0, vmax=1)
+    # plt.show()
     cpts = getCities(cIm)
     print('ConnectCanny', len(cpts))
-    cd = distance_matrix(cpts, cpts)
-    np.fill_diagonal(cd, 100000)
-    ca = cd < 2
-    C = nx.from_numpy_matrix(np.multiply(cd, ca))
-    cane = C.edges()
-    ce = list(map(lambda e: [cpts[e[0]], cpts[e[1]]], cane))
-    return ce
+    G = nx.Graph()
+
+    G = NeiEdge(G, cIm, 2)
+    G = NeiEdge(G, cIm, 4)
+    G = NeiEdge(G, cIm, 1)
+    G = NeiEdge(G, cIm, 3)
+    return list(G.edges())
+
 
 # Create evenly-spaced lines in a matrix
 # shape: size of matrix
@@ -125,29 +129,10 @@ def buildHatch(shape, direction, spacing, offset):
 
     return np.transpose(abs(A + B * direction) % (spacing + 1) == offset)
 
+
 # Given lines from buildHatch, turn matrix points into long edges
 def createDiagEdges(mask, ori):
-    G = nx.Graph()
-
-    # Look for pixels with pixels above them in correct direction
-    # Convolve to get pixels that match that criterion
-    kernel = np.array(
-        [[(.5 - .5*ori), 0, (.5 + .5*ori)], [0, 0, 0], [0, 0, 0]])
-    c = convolve(mask.astype(int), kernel, mode='constant')
-    # These points that are also in the mask are the good ones
-    startN = (c == 1) & mask
-    cities = getCities(startN)  # Get the XY coords
-    cities = [p for p in cities if ((p[0] != 0) & (p[1] != 0))]  # Filter out zeros
-
-    # Their neighbors are below them (and left or right)
-    nextCitiesX = np.array([x[0] for x in cities]) + ori
-    nextCitiesY = np.array([x[1] for x in cities]) - 1
-    nextCities = list(zip(nextCitiesX, nextCitiesY))
-
-    # Add to temp graph
-    G.add_nodes_from(cities)
-    G.add_nodes_from(nextCities)
-    G.add_edges_from(tuple(zip(cities, nextCities)))
+    G = NeiEdge(nx.Graph(), mask, (2+ori))
 
     # Each component is a long edge
     edges = []
@@ -158,40 +143,35 @@ def createDiagEdges(mask, ori):
         edges.append(n1)
     return edges
 
+
 # Connect separate subgraphs into one big subgraph with optimal new edges
-def ConnectSubgraphs(G, d):
+def ConnectSubgraphs(G, nnodes, dnodes):
     sub_graphs = list(nx.connected_components(G))
-    all_nodes = list(G.nodes())
+    all_coord = [dnodes[x] for x in list(G.nodes())]
+    A = NodeMap(all_coord)
+
     # For each subgraph, connect it to the closest node in a different subgraph
     # Repeat until there's only one
-    while len(list(nx.connected_components(G))) > 1:
-        print('Subgraph loop')
+    while len(sub_graphs) > 1:
+        print('Subgraph loop', len(sub_graphs))
+
         for i, sg in enumerate(sub_graphs):
-            sg_nodes = list(sg)  # Get all nodes in the subgraph
-            # Get distances to other nodes not in the subgraph
-            A = d[sg_nodes, :]
-            A[:, sg_nodes] = 100000
-            A = A[:, all_nodes]
-            # Find the shortest connection between a node in sg and 
-            # a node not in sg
-            (z, nei) = np.unravel_index(A.argmin(), A.shape)
-            minN = sg_nodes[z]
-            minNei = all_nodes[nei]
-            # If the distance is large, we're done
-            if A[z, nei] >= 100000:
-                break
-            # Add the edge
-            G.add_edge(minN, minNei, weight=A[z, nei])
+            # print(i)
+            sg = nx.node_connected_component(G, list(sg)[0])
+            sg_node_num = list(sg)  # Get all nodes in the subgraph
+            sg_node_coord = [dnodes[x] for x in sg_node_num]
 
-        sub_graphs = nx.connected_components(G)
+            newedge = GrowBorder(A, sg_node_coord)
+            if newedge is not None:
+                G.add_edge(nnodes[newedge[0]], nnodes[newedge[1]], weight=newedge[2])
 
-    # Mark the distance matrix with new edges
-    a = nx.adjacency_matrix(G)
-    d = d + a * 100000
-    return G, d
+        sub_graphs = list(nx.connected_components(G))
+
+    return G
+
 
 # Add a parallel edge to any degee 1 node with an odd node as a neighbor
-def EasyLinkOne(G, d):
+def EasyLinkOne(G):
     n1 = n1deg(G)
     # Get the neighbor for each d1 node (and the neighbors degree)
     n1nei = list(map(lambda e: list(G.neighbors(e))[0], n1))
@@ -201,14 +181,12 @@ def EasyLinkOne(G, d):
     filterne = [i for indx, i in enumerate(n1nei) if neideg[indx] is True]
     # Add parallel edges
     for n1, ne in zip(filtern1, filterne):
-        G.add_edge(n1, ne, d[n1, ne])
+        G.add_edge(n1, ne, weight=G.get_edge_data(n1, ne)[0]['weight'])
+    return G
 
-    a = nx.adjacency_matrix(G)
-    d = d + a * 100000
-    return G, d
 
 # Add a parallel edge to any odd node with an odd node as a neighbor
-def EasyLinkOdd(G, d):
+def EasyLinkOdd(G):
     nO = nOdeg(G)
     nOnei = list(map(lambda e: list(G.neighbors(e))[0], nO))
     neideg = list(map(lambda e: G.degree(e) % 2 == 1, nOnei))
@@ -217,64 +195,57 @@ def EasyLinkOdd(G, d):
     filterne = [i for indx, i in enumerate(nOnei) if neideg[indx] is True]
 
     for nO, ne in zip(filternO, filterne):
-        G.add_edge(nO, ne, d[nO, ne])
+        G.add_edge(nO, ne, weight=G.get_edge_data(nO, ne)[0]['weight'])
 
-    a = nx.adjacency_matrix(G)
-    d = d + a * 100000
-    return G, d
+    return G
 
-# Link remaining d1 nodes to a good neighbor
-def LinkDegOne(T, d):
-    nodes_one_degree = n1deg(T)
-    # Get distances from d1 nodes to all other nodes
-    dOne = d[nodes_one_degree, :]
-    # Find best option to add an edge
-    row_ind, col_ind = linear_sum_assignment(dOne)
-    print('Assignment complete')
-    # added = []
-    for j in range(0, len(nodes_one_degree)):
-        # if not (j in added or col_ind[j] in added):
-        # added.append(j)
-        # added.append(col_ind[j])
-        # print(nodes_one_degree[j], nodes_one_degree[col_ind[j]])
-        # print(dOne[j, col_ind[j]])
-        T.add_edge(
-            nodes_one_degree[j], col_ind[j], weight=dOne[j, col_ind[j]])
 
-    a = nx.adjacency_matrix(T)
-    d = d + a * 100000
-    return T, d
+def LinkDegOne(G, nnodes, dnodes):
+    nodes_one_degree = n1deg(G)
+    one_coord = [dnodes[p] for p in nodes_one_degree]
+
+    nodes_all_degree = list(G.nodes())
+    all_coord = [dnodes[p] for p in nodes_all_degree]
+
+    for i, p in enumerate(one_coord):
+        if G.degree(nnodes[p]) != 1:
+            continue
+
+        # print(i)
+        ld = distance_matrix([p], all_coord)
+        ld[0, nnodes[p]] = 100000
+        nei = ld.argmin()
+        G.add_edge(nnodes[p], nnodes[all_coord[nei]], weight=ld[0, nei])
+        # newedge = GrowBorder(A, [p])
+        # if newedge is not None:
+            # G.add_edge(nnodes[newedge[0]], nnodes[newedge[1]], weight=newedge[2])
+
+    return G
+
 
 # Link odd nodes together but only if they are each other's best odd
-def LinkDegOdd(T, d):
-    nodes_odd_degree = nOdeg(T)
-    # Get distances from odd nodes to other odd nodes
-    dOne = d[nodes_odd_degree, :]
-    dOne = dOne[:, nodes_odd_degree]
-    # Find best match
-    row_ind, col_ind = linear_sum_assignment(dOne)
-    print('Assignment complete')
+def LinkDegOdd(G, nnodes, dnodes):
+    nodes_odd_degree = nOdeg(G)
+    odd_coord = [dnodes[p] for p in nodes_odd_degree]
 
-    # Keep track of which nodes we've connected
-    added = []
-    for j in range(0, len(nodes_odd_degree)):
-        # If a node is it's best node's best node
-        if j == col_ind[col_ind[j]]:
-            # If we haven't already connected either
-            if not (j in added or col_ind[j] in added):
-                added.append(j)
-                added.append(col_ind[j])
-                T.add_edge(
-                    nodes_odd_degree[j], nodes_odd_degree[col_ind[j]],
-                    weight=dOne[j, col_ind[j]])
+    for i, p in enumerate(odd_coord):
+        if G.degree(nnodes[p]) % 2 != 1:
+            continue
 
-    a = nx.adjacency_matrix(T)
-    d = d + a * 100000
-    return T, d
+        # print(i)
+        ld = distance_matrix([p], odd_coord)
+        ld[0, i] = 100000
+        nei = ld.argmin()
+        if ld[0, nei] < 30:
+            G.add_edge(nnodes[p], nnodes[odd_coord[nei]], weight=ld[0, nei])
 
-# Link remaining odd nodes by adding paralle paths between them
+    return G
+
+
+# Link remaining odd nodes by adding parallel paths between them
 # Try to find minimum weight matching
-def PathFinder(G, d):
+# https://brooksandrew.github.io/simpleblog/articles/intro-to-graph-optimization-solving-cpp/
+def PathFinder(G, dnodes):
     nO = nOdeg(G)
     A = np.zeros((len(list(G.nodes())), len(list(G.nodes()))))
     # Get path lengths from all odd nodes to all nodes
@@ -290,19 +261,19 @@ def PathFinder(G, d):
     np.fill_diagonal(A, 1000000)  # No self loops
     A2 = A[nO, :]
     A2 = A2[:, nO]
-    
+
     # Get all combinations of two odd nodes
     odd_node_pairs = list(itertools.combinations(nO, 2))
     print('Num pairs', len(odd_node_pairs))
     # Construct a temp complete graph of odd nodes
     # edge weights = path lengths (negative for max weight matching)
-    O = nx.Graph()
+    OddComplete = nx.Graph()
     for op in odd_node_pairs:
-        O.add_edge(op[0], op[1], weight=-A[op[0], op[1]])
+        OddComplete.add_edge(op[0], op[1], weight=-A[op[0], op[1]])
 
     # This gets optimal matching, probably can do near-optimal matching
     print('Begin matching')
-    odd_matching_dupes = nx.algorithms.max_weight_matching(O, True)
+    odd_matching_dupes = nx.algorithms.max_weight_matching(OddComplete, True)
     print('End matching')
     odd_matching = list(pd.unique([tuple(sorted([k, v])) for k, v in odd_matching_dupes.items()]))
 
@@ -314,11 +285,11 @@ def PathFinder(G, d):
         p = nx.dijkstra_path(G, a[0], a[1])
         # Add parallel edges from the path
         for i in range(0, len(p) - 1):
-            G.add_edge(p[i], p[i+1], weight=d[p[i], p[i+1]])
+            w = pythag(dnodes[p[i]], dnodes[p[i+1]])
+            G.add_edge(p[i], p[i+1], weight=w)
 
-    a = nx.adjacency_matrix(G)
-    d = d + a * 100000
-    return G, d
+    return G
+
 
 # Do the graph theory work
 def genGraph(es):
@@ -341,13 +312,6 @@ def genGraph(es):
     nwedges = list(map(lambda e: (nnodes[e[0]], nnodes[e[1]], e[2]), wedges))
     G.add_weighted_edges_from(nwedges)
 
-    # Create a distance matrix for all nodes to all other nodes
-    d = distance_matrix(allnodes, allnodes)
-    np.fill_diagonal(d, 100000)  # No self loops
-    # This will prevent certain steps from adding parallel edges
-    a = nx.adjacency_matrix(G) 
-    d = d + a * 100000
-
     # Need an eulerian circuit
     # One component, no odd degree nodes
     # Where do we stand
@@ -356,21 +320,41 @@ def genGraph(es):
     print("Num components", len(list(nx.connected_components(G))))
 
     # Connect any separate subgraphs into one
+    # Will add edges
     print('Connect Subgraphs')
-    G, d = ConnectSubgraphs(G, d)
+    nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
+    nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
+    plt.axis('scaled')
+    plt.show()
+    G = ConnectSubgraphs(G, nnodes, dnodes)
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
     print("Num components", len(list(nx.connected_components(G))))
-
+    nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
+    nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
+    plt.axis('scaled')
+    plt.show()
+    
     # Add a parallel edge to any d1 node with an odd node as a neighbor
     print('EasyLinkOne')
-    G, d = EasyLinkOne(G, d)
+    G = EasyLinkOne(G)
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
 
+    # # Link remaining d1 nodes to a good neighbor
+    # # This may create new edges
+    print('LinkDegOne')
+    G = LinkDegOne(G, nnodes, dnodes)
+    print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
+    print("Num One", len(n1deg(G)))  # Number of degree one nodes
+    # nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
+    # nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
+    # plt.axis('scaled')
+    # plt.show()
+    
     # Add a parallel edge to any odd node with an odd node as a neighbor
     print('EasyLinkOdd')
-    G, d = EasyLinkOdd(G, d)
+    G = EasyLinkOdd(G)
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
     # nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
@@ -378,21 +362,24 @@ def genGraph(es):
     # plt.axis('scaled')
     # plt.show()
 
-    # Link remaining d1 nodes to a good neighbor
-    # This may create new edges
-    print('LinkDegOne')
-    G, d = LinkDegOne(G, d)
-    print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
-    print("Num One", len(n1deg(G)))  # Number of degree one nodes
-    # nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
-    # nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
-    # plt.axis('scaled')
-    # plt.show()
+    # Create a distance matrix for all nodes to all other nodes
+    # d = distance_matrix(allnodes, allnodes)
+    # np.fill_diagonal(d, 100000)  # No self loops
+    # # This will prevent certain steps from adding parallel edges
+    # a = nx.adjacency_matrix(G)
+    # d = d + a * 100000
+    # nx.write_weighted_edgelist(G, 'aftereasy')
+    # G = nx.read_weighted_edgelist('aftereasy')
+
 
     # Link odd nodes together but only if they are each other's best odd
     # This may create new edges
     print('LinkDegOdd')
-    G, d = LinkDegOdd(G, d)
+    G = LinkDegOdd(G, nnodes, dnodes)
+    print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
+    print("Num One", len(n1deg(G)))  # Number of degree one nodes
+    print('LinkDegOdd 2')
+    G = LinkDegOdd(G, nnodes, dnodes)
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
     nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
@@ -402,7 +389,7 @@ def genGraph(es):
 
     # Match remaining odd nodes with longer parallel paths
     print('FinalOdd')
-    G, d = PathFinder(G, d)
+    G = PathFinder(G, dnodes)
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
     # nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)

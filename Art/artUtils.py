@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.ndimage import convolve, gaussian_filter
+from scipy.spatial import distance_matrix
 import networkx as nx
 
 
@@ -58,3 +59,70 @@ def n1deg(T):
 
 def nOdeg(T):
     return [v for v, d2 in T.degree() if d2 % 2 == 1]
+
+
+# ori
+# 1 2 3
+# 4   6
+# 7 8 9
+def NeiEdge(G, im, ori):
+    # Look for pixels with pixels above them in correct direction
+    # Convolve to get pixels that match that criterion
+    kernel = np.zeros(9)
+    kernel[ori-1] = 1
+    kernel = np.reshape(kernel, (3, 3))
+    c = convolve(im.astype(int), kernel, mode='constant')
+
+    # Get the XY coords of pixels that are in the original image and the convolved image
+    cities = getCities(np.multiply(c == 1, im))
+    cities = [p for p in cities if ((p[0] != 0) & (p[1] != 0))]  # Filter out zeros
+
+    if ori % 2 == 1 and len(list(G.nodes())) > 0:
+        cities = [p for p in cities if (G.degree(p) == 1)]
+
+    # Their neighbors are below them (and left or right)
+    nextCitiesX = np.array([x[0] for x in cities]) - int((ori-1) % 3 - 1)
+    nextCitiesY = np.array([x[1] for x in cities]) - int(ori // 3.3 - 1)
+    nextCities = list(zip(nextCitiesX, nextCitiesY))
+    d = 1 + (0.414 * (ori % 2 == 1))
+    dlist = np.full(nextCitiesX.shape, d)
+    G.add_weighted_edges_from(tuple(zip(cities, nextCities, dlist)))
+
+    return G
+
+
+# Given a list of node numbers, return a bool map
+def NodeMap(all_coord):
+    maxc = np.max(all_coord).astype(int)
+    A = np.zeros((maxc+1, maxc+1))
+    all_x = [x[1] for x in all_coord]
+    all_y = [y[0] for y in all_coord]
+    A[all_x, all_y] = 1
+    return A
+
+
+# Find nearest component and return the edge to add
+def GrowBorder(A, sg_node_coord):
+    kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
+    B = np.zeros(A.shape)
+    sg_x = [x[1] for x in sg_node_coord]
+    sg_y = [x[0] for x in sg_node_coord]
+    B[sg_x, sg_y] = 1
+    C = A.copy()
+    C[sg_x, sg_y] = 0
+    connected = False
+    while not connected:
+        if np.all(B == 1):
+            connected = True
+            break
+
+        B = (convolve(B, kernel, mode='constant') > 0).astype(int)
+        links = np.logical_and(B, C)
+        if np.sum(links) > 0:
+            connected = True
+            linkcoord = getCities(links)
+            ld = distance_matrix(sg_node_coord, linkcoord)
+            (z, nei) = np.unravel_index(ld.argmin(), ld.shape)
+            minN = sg_node_coord[z]
+            minNei = linkcoord[nei]
+            return (minN, minNei, ld[z, nei])
