@@ -34,7 +34,7 @@ Some notes about specific parts:
 
 ### Custom parts
 | Item | Qty | Mfg. Method |
-|---|---|---|---|
+|---|---|---|
 | Motor Board | 2 | Custom PCB |
 | Breakout Board | 1 | Custom PCB |
 | Knob Wheel | 2 | Print |
@@ -51,7 +51,7 @@ Some notes about specific parts:
 2. Screw the motors to the brackets (8x M3 10mm screws). Keep the orientation of the board in mind; the signal and power cables will need to reach the bottom middle of the TV.
 3. Attach the two shaft couplers to the motor shafts (2x 4-40 1/8" set screws)
 4. Place the brackets onto the bottom of the TV using adhesive. You may need to adjust their position later.
-1. Place the shell over the front of the TV so that the shaft couplers fit through the holes. Make the holes bigger if necessary, they will be covered by the knobs.
+1. Place the shell over the front of the TV so that the shaft couplers fit through the holes. Make the holes bigger if necessary; they will be covered by the knobs.
 2. Slide the internal ribs into place to position the shell relative to the TV.
 3. If necessary, reposition the brackets to make them symmetric.
 4. Carefully press the knobs onto the shaft couplers.

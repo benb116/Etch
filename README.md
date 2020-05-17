@@ -35,6 +35,9 @@ Art files contain the lists of points in order of travel. They also include info
 - [ ] Upgrade the custom PCBs
 - [ ] Develop a show script
 - [ ] Add user input to toggle between AUTO and MANUAL
+- [ ] Possible: add support for arcs and splines
+- [ ] Improve webpage performance
+- [ ] Create standalone site with artwork
 
 ## Acknowledgements
 

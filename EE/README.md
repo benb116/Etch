@@ -54,3 +54,16 @@ Along with connectors, the Breakout Board has a [PCA9540 2-channel I2C multiplex
 ## Connectors
 
 The 10-pin connections between Breakout and Motor Boards are sent over [2-foot Samtec cables (FFSD-05-D-24.00-01-N-R)](https://www.samtec.com/products/ffsd-05-d-24.00-01-n-r) to [surface-mount headers (FTSH-105-01-F-DV-K)](https://www.samtec.com/products/ftsh-105-01-f-dv-k). These were chosen because they are compact, long enough, keyed to prevent miswiring, and because free samples are available from the manufacturer. Future versions of the boards will use through-hole connectors which are easier to solder. If there is interest in a general-use Motor Board, the connectors may be swapped for 0.1" pitch connectors to preserve compatibility with existing DIY electronics kits.
+
+## Improvements
+
+- [ ] Fix pull up values
+- [ ] Pullup for -ENABLE
+- [ ] Get rid of diodes
+- [ ] Test points and LEDs
+- [ ] New connectors
+- [ ] Can move components into the A4988 footprint
+- [ ] Change to through hole components when possible
+- [ ] Larger SMCs
+- [ ] Change the footprint of the PCA9540 (PCA9540BD, not BDP)
+- [ ] Accomodate DRV8825? Spec for voltage and current: 45V*1.5, 2.5 A per coil
