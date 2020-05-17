@@ -24,7 +24,7 @@
     let points, dist, numsteps, stepsto;
     let coord = [100, 100];
     let speed = 10; // px per sec
-    const FPS = 30;
+    let FPS = 30;
     let stepPerPix = FPS / speed; // How many virtual steps to take per pixel distance
     const BIAS = 50; // Client has slight constant lag. Increase to make client earlier
 
@@ -44,7 +44,7 @@
 
         // Create the interval threads
         for (var i = 0; i < points.length-1; i+=1) {
-            CreateTime(i);
+            let nextS = CreateTime(i);
         }
 
         function CreateTime(i) {
@@ -54,6 +54,7 @@
                 // console.log(Date.now(), start, LINE);
                 DrawSegment(points[i], points[i+1], (LINE ? numsteps[i] : 1));
             }, start*LINE));
+            return start;
         }
     });
 
@@ -91,9 +92,6 @@
             stepsto = [];
             numsteps.reduce(function(a,b,i) { return stepsto[i] = a+b; }, 0);
             stepsto.unshift(0);
-
-
-
             // Ready to draw
             socket.emit('clientArtReady');
         });
@@ -126,8 +124,8 @@
     // Draw a virtual step line segment
     function DrawStep(p1, p2) {
         c.beginPath();
-        c.moveTo(p1[0]+400, p1[1]);
-        c.lineTo(p2[0]+400, p2[1]);
+        c.moveTo(p1[0], p1[1]);
+        c.lineTo(p2[0], p2[1]);
         c.stroke();
         coord = p2; // Update latest coordinate
     }
@@ -143,6 +141,8 @@
         });
     }
 
-    function ClearScreen() { c.clearRect(0, 0, 2000, 2000); }
+    function ClearScreen() {
+        c.clearRect(0, 0, 2000, 2000);
+    }
 </script>
 </html>
