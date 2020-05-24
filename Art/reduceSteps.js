@@ -14,14 +14,31 @@ const screensize = [1280, 700];
 const screenmid = [Math.round(screensize[0]/2), Math.round(screensize[1]/2)];
 
 const xy = ben.arr.transpose(data.points);
-const maxX = ben.arr.max(xy[0])[0];
-const maxY = ben.arr.max(xy[1])[0];
-const minX = ben.arr.min(xy[0])[0];
-const minY = ben.arr.min(xy[1])[0];
+let maxX = ben.arr.max(xy[0])[0];
+let maxY = ben.arr.max(xy[1])[0];
+let minX = ben.arr.min(xy[0])[0];
+let minY = ben.arr.min(xy[1])[0];
+
+console.log(maxX, minX);
+console.log(maxY, minY);
+
+const bigX = (maxX - minX - screensize[0]+2*80) / (screensize[0]+2*80);
+const bigY = (maxY - minY - screensize[1]+2*50) / (screensize[1]+2*50);
+console.log(bigX, bigY);
+const big = Math.max(bigX, bigY, 0);
+if (big > 0) {
+    xy[0] = xy[0].map(e => Math.round(e / (1 + big)));
+    xy[1] = xy[1].map(e => Math.round(e / (1 + big)));
+}
+maxX = ben.arr.max(xy[0])[0];
+maxY = ben.arr.max(xy[1])[0];
+minX = ben.arr.min(xy[0])[0];
+minY = ben.arr.min(xy[1])[0];
 const avgX = Math.round((maxX + minX) / 2);
 const avgY = Math.round((maxY + minY) / 2);
 const difX = avgX - screenmid[0];
 const difY = avgY - screenmid[1];
+console.log(maxX, minX, avgX, difX);
 console.log(maxY, minY, avgY, difY);
 
 const newX = xy[0].map(e => e - difX);

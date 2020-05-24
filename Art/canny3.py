@@ -26,7 +26,7 @@ def extractEdges(imagePath):
     image = cv2.imread(imagePath)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (3, 3), 0)
-    blurred = cv2.GaussianBlur(blurred, (3, 3), 0)
+    # blurred = cv2.GaussianBlur(blurred, (3, 3), 0)
     # apply Canny edge detection using a wide threshold, tight
     # threshold, and automatically determined threshold
     auto = despeck(auto_canny(blurred))

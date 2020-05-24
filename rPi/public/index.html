@@ -10,7 +10,7 @@
     </style>
 </head>
 <body>
-    <canvas id="c" width="1200" height="1000" style="position: fixed;"></canvas>
+    <canvas id="c" width="1500" height="1200" style="position: fixed;"></canvas>
 </body>
 <script src="socket.io.js"></script>
 <script type="text/javascript" charset="utf-8">
@@ -92,6 +92,7 @@
             stepsto = [];
             numsteps.reduce(function(a,b,i) { return stepsto[i] = a+b; }, 0);
             stepsto.unshift(0);
+            console.log(Steps2MS(stepsto[stepsto.length-1])/1000/60);
             // Ready to draw
             socket.emit('clientArtReady');
         });

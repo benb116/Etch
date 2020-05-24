@@ -21,7 +21,7 @@ def bin(Ig, ints):
 
 def blur(line):
     kernel = np.ones((5, 5))
-    c = convolve(line.astype(int), kernel, mode='constant')/25
+    c = convolve(line.astype(int), kernel, mode='nearest')/25
     return c
 
 

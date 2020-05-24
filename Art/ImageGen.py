@@ -9,21 +9,22 @@ from scipy.optimize import linear_sum_assignment
 from scipy.spatial import distance_matrix
 from scipy.ndimage import convolve
 import matplotlib.pyplot as plt
-# from matplotlib.widgets import Slider, Button, TextBox
+from matplotlib.widgets import Slider, TextBox, CheckButtons
 import numpy as np
 import sys
 import os
 from PIL import Image
 
+interactive = True
 
 # Binning and hatching parameters
-ints = np.array([30, 30, 120, 220])  # Brightness cutoffs
-spacing = np.array([7, 7, 13, 15])  # Corresponding line densities
-orientation = np.array([-1, 1, -1, 1])  # Direction (not all the same way)
-offset = np.array([0, 0, 0, 0])  # Any offsets
+ints = np.array([30, 30, 90, 120, 0])  # Brightness cutoffs
+spacing = np.array([7, 7, 13, 15, 20])  # Corresponding line densities
+orientation = np.array([-1, 1, -1, 1, -1])  # Direction (not all the same way)
+offset = np.array([0, 0, 0, 0, 0])  # Any offsets
 
 folder = '/Users/Ben/Desktop/Etch/'
-jpgname = 'Albert'
+jpgname = 'Cubes'
 im_path = os.path.join(folder, jpgname+'.jpg')
 Im = np.array(Image.open(im_path).convert('RGB'))
 Ig = rgb2gray(Im)
@@ -39,16 +40,18 @@ hatchedgim = [[] for i in ints]
 
 def main():
     global Ig, blurred, thresh  # Find a better way than global vars
+
     Ig = rgb2gray(Im)
     blurred = blur(Ig)  # Smooth out any small specks
     # Build up a matrix from various bins and operations
     sumImage = Update(0, 0, 0, 0, 1)  # Edge detection
     sumImage = Update(1, 0, 0, 0, 0)  # Set up bin images
-    for i in range(0, len(ints)-1):
+    for i in range(0, len(ints)):
         sumImage = Update(0, i+1, 0, 0, 0)  # Hatch the bin images
 
-    plt.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
-    plt.show()
+    SliderFigure(sumImage)
+    # plt.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
+    # plt.show()
     print('Start graph work')
     G, stops = genGraph(alledges)
 
@@ -57,8 +60,8 @@ def main():
     stopstring = 'asd'
     stopstring = np.array2string(stops, separator=',')
     # print(stopstring)
-    file1 = open(jpgname+".txt", "w")
-    file1.write(stopstring)
+    file1 = open('rPi/public/art/'+jpgname+'.json', "w")
+    file1.write(FormatFile(stopstring))
     file1.close()
     # Checks
     # print(list(G.degree()))
@@ -66,12 +69,76 @@ def main():
     # print(nx.is_eulerian(G))
 
 
+def FormatFile(stopstring):
+    pretext = '{"name":"'+jpgname+'","pxSpeed":100,"pxPerRev":40,"points":'
+    return pretext+stopstring+'}'
+
+
+def SliderFigure(sumImage):
+    global ints, spacing, threshhold
+
+    # if not interactive:
+        # return
+
+    fig = plt.figure(figsize=(8, 6))
+    ax = fig.add_subplot(111)
+    fig.subplots_adjust(left=0.15, bottom=0.35)
+    ax.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
+
+    sax1 = fig.add_axes([0.15, 0.05, 0.5, 0.03])
+    sax2 = fig.add_axes([0.15, 0.10, 0.5, 0.03])
+    sax3 = fig.add_axes([0.15, 0.15, 0.5, 0.03])
+    sax4 = fig.add_axes([0.15, 0.20, 0.5, 0.03])
+    sax5 = fig.add_axes([0.15, 0.25, 0.5, 0.03])
+    s1 = Slider(sax1, 'Int1', 0, 255, valfmt='%0.0f', valinit=ints[0])
+    s2 = Slider(sax2, 'Int2', 0, 255, valfmt='%0.0f', valinit=ints[1])
+    s3 = Slider(sax3, 'Int3', 0, 255, valfmt='%0.0f', valinit=ints[2])
+    s4 = Slider(sax4, 'Int4', 0, 255, valfmt='%0.0f', valinit=ints[3])
+    s5 = Slider(sax5, 'Int5', 0, 255, valfmt='%0.0f', valinit=ints[4])
+    s1.on_changed(lambda x: slid(1, x))
+    s2.on_changed(lambda x: slid(2, x))
+    s3.on_changed(lambda x: slid(3, x))
+    s4.on_changed(lambda x: slid(4, x))
+    s5.on_changed(lambda x: slid(5, x))
+    tax1 = fig.add_axes([0.7, 0.05, 0.05, 0.03])
+    tax2 = fig.add_axes([0.7, 0.10, 0.05, 0.03])
+    tax3 = fig.add_axes([0.7, 0.15, 0.05, 0.03])
+    tax4 = fig.add_axes([0.7, 0.20, 0.05, 0.03])
+    tax5 = fig.add_axes([0.7, 0.25, 0.05, 0.03])
+    t1 = TextBox(tax1, '', initial=str(spacing[0]))
+    t2 = TextBox(tax2, '', initial=str(spacing[1]))
+    t3 = TextBox(tax3, '', initial=str(spacing[2]))
+    t4 = TextBox(tax4, '', initial=str(spacing[3]))
+    t5 = TextBox(tax5, '', initial=str(spacing[4]))
+    t1.on_submit(lambda x: space(1, x))
+    t2.on_submit(lambda x: space(2, x))
+    t3.on_submit(lambda x: space(3, x))
+    t4.on_submit(lambda x: space(4, x))
+    t5.on_submit(lambda x: space(5, x))
+
+    def slid(ind, val):
+        global ints, spacing, threshhold
+        ints[ind-1] = int(round(val))
+        sumImage = Update(0, ind, 0, 0, 0)
+        ax.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
+        fig.canvas.draw()
+
+    def space(ind, val):
+        global ints, spacing, threshhold
+        spacing[ind-1] = int(val)
+        sumImage = Update(0, ind, 0, 0, 0)
+        ax.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
+        fig.canvas.draw()
+
+    plt.show()
+
+
 def Update(nint, sp, ori, off, edge):
     if edge:
         print('Run edge detection')
         global edIm, canedges
-        edIm = extractEdges(im_path)
-        # edIm = updEdge(Ig, 70000)
+        # edIm = extractEdges(im_path)
+        edIm = updEdge(Ig, 20000)
         print('Link edge detection')
         canedges = ConnectCanny(edIm)
     if nint:
@@ -98,12 +165,13 @@ def Update(nint, sp, ori, off, edge):
             hIm = (hIm + hI) > 0
     sumImage = edIm + hIm
     sumImage = despeck(sumImage)
+
     return sumImage
 
 
 # Link up adjacent points returned from edge detection
 def ConnectCanny(cIm):
-    plt.imshow(1-cIm, cmap='gray', vmin=0, vmax=1)
+    # plt.imshow(1-cIm, cmap='gray', vmin=0, vmax=1)
     # plt.show()
     cpts = getCities(cIm)
     print('ConnectCanny', len(cpts))
@@ -153,7 +221,6 @@ def ConnectSubgraphs(G, nnodes, dnodes):
     # For each subgraph, connect it to the closest node in a different subgraph
     # Repeat until there's only one
     while len(sub_graphs) > 1:
-        print('Subgraph loop', len(sub_graphs))
 
         for i, sg in enumerate(sub_graphs):
             # print(i)
@@ -181,6 +248,8 @@ def EasyLinkOne(G):
     filterne = [i for indx, i in enumerate(n1nei) if neideg[indx] is True]
     # Add parallel edges
     for n1, ne in zip(filtern1, filterne):
+        if G.degree(n1) is not 1:
+            continue
         G.add_edge(n1, ne, weight=G.get_edge_data(n1, ne)[0]['weight'])
     return G
 
@@ -195,6 +264,8 @@ def EasyLinkOdd(G):
     filterne = [i for indx, i in enumerate(nOnei) if neideg[indx] is True]
 
     for nO, ne in zip(filternO, filterne):
+        if G.degree(nO) % 2 is not 1:
+            continue
         G.add_edge(nO, ne, weight=G.get_edge_data(nO, ne)[0]['weight'])
 
     return G
@@ -291,6 +362,15 @@ def PathFinder(G, dnodes):
     return G
 
 
+def PlotGraph(G, ndnodes):
+    if not interactive:
+        return
+    nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
+    nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
+    plt.axis('scaled')
+    plt.show()    
+
+
 # Do the graph theory work
 def genGraph(es):
     G = nx.MultiGraph()
@@ -318,23 +398,17 @@ def genGraph(es):
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
     print("Num components", len(list(nx.connected_components(G))))
+    PlotGraph(G, ndnodes)
 
     # Connect any separate subgraphs into one
     # Will add edges
     print('Connect Subgraphs')
-    nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
-    nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
-    plt.axis('scaled')
-    plt.show()
     G = ConnectSubgraphs(G, nnodes, dnodes)
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
     print("Num components", len(list(nx.connected_components(G))))
-    nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
-    nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
-    plt.axis('scaled')
-    plt.show()
-    
+    PlotGraph(G, ndnodes)
+
     # Add a parallel edge to any d1 node with an odd node as a neighbor
     print('EasyLinkOne')
     G = EasyLinkOne(G)
@@ -347,31 +421,15 @@ def genGraph(es):
     G = LinkDegOne(G, nnodes, dnodes)
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
-    # nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
-    # nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
-    # plt.axis('scaled')
-    # plt.show()
+    PlotGraph(G, ndnodes)
     
     # Add a parallel edge to any odd node with an odd node as a neighbor
     print('EasyLinkOdd')
     G = EasyLinkOdd(G)
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
-    # nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
-    # nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
-    # plt.axis('scaled')
-    # plt.show()
-
-    # Create a distance matrix for all nodes to all other nodes
-    # d = distance_matrix(allnodes, allnodes)
-    # np.fill_diagonal(d, 100000)  # No self loops
-    # # This will prevent certain steps from adding parallel edges
-    # a = nx.adjacency_matrix(G)
-    # d = d + a * 100000
-    # nx.write_weighted_edgelist(G, 'aftereasy')
-    # G = nx.read_weighted_edgelist('aftereasy')
-
-
+    PlotGraph(G, ndnodes)
+    
     # Link odd nodes together but only if they are each other's best odd
     # This may create new edges
     print('LinkDegOdd')
@@ -382,10 +440,7 @@ def genGraph(es):
     G = LinkDegOdd(G, nnodes, dnodes)
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
-    nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
-    nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
-    plt.axis('scaled')
-    plt.show()
+    PlotGraph(G, ndnodes)
 
     # Match remaining odd nodes with longer parallel paths
     print('FinalOdd')
