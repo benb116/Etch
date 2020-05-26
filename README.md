@@ -15,8 +15,8 @@ Etch is built around a Raspberry Pi connected to a TV and two stepper motors. Th
 
 The motor boards serve two functions:
 
-1. AUTO Mode - Take in step and direction signals from the breakout board and route them to the onboard stepper driver.
-2. MANUAL Mode - Sense the orientation of a diametrically polarized magnet on the back of the motor axis. The motor position is then sent to the Pi to monitor the user's input.
+1. **AUTO Mode** - Take in step and direction signals from the breakout board and route them to the onboard stepper driver.
+2. **MANUAL Mode** - Sense the orientation of a diametrically polarized magnet on the back of the motor axis. The motor position is then sent to the Pi to monitor the user's input.
 
 The motors, shaft couplers, and knobs are mounted to two brackets that are adhered to the TV. Lasercut polystyrene sheets form the outer shell and are positioned using internal ribs.
 

@@ -35,6 +35,10 @@ isConnected = False
 def root():
     return app.send_static_file('index.html')
 
+@app.route('/index2.html')
+def root2():
+    return app.send_static_file('index2.html')
+
 @app.route('/socket.io.js')
 def socketioFile():
     return app.send_static_file('socket.io.js')
@@ -66,7 +70,7 @@ def SendArtLink(url):
     emit('link', url)
 
 @socketio.on('clientArtReady')
-def on_clientArtReady():
+def on_clientArtReady(url):
     # pull file that we sent
     with open('public/'+url) as json_file:  
         data = json.load(json_file)
@@ -75,7 +79,8 @@ def on_clientArtReady():
         pxPerRev = data['pxPerRev']
 
     # Determine unix start time
-    TS = time.time() + 0.500
+    print(len(points))
+    TS = time.time() + 0.00025 * len(points) + 0.5
 
     print('Init')
     threading.Thread(target=genThreads, args=(points, TS, pxSpeed, pxPerRev)).start()

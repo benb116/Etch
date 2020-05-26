@@ -18,13 +18,13 @@ from PIL import Image
 interactive = True
 
 # Binning and hatching parameters
-ints = np.array([30, 30, 90, 120, 0])  # Brightness cutoffs
+ints = np.array([30, 30, 90, 120, 255])  # Brightness cutoffs
 spacing = np.array([7, 7, 13, 15, 20])  # Corresponding line densities
 orientation = np.array([-1, 1, -1, 1, -1])  # Direction (not all the same way)
-offset = np.array([0, 0, 0, 0, 0])  # Any offsets
+offset = np.array([0, 0, 0, 0, 100000])  # Any offsets
 
 folder = '/Users/Ben/Desktop/Etch/'
-jpgname = 'Cubes'
+jpgname = 'IwoJima'
 im_path = os.path.join(folder, jpgname+'.jpg')
 Im = np.array(Image.open(im_path).convert('RGB'))
 Ig = rgb2gray(Im)
@@ -119,6 +119,7 @@ def SliderFigure(sumImage):
     def slid(ind, val):
         global ints, spacing, threshhold
         ints[ind-1] = int(round(val))
+        sumImage = Update(1, 0, 0, 0, 0)  # Set up bin images
         sumImage = Update(0, ind, 0, 0, 0)
         ax.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
         fig.canvas.draw()
@@ -137,8 +138,8 @@ def Update(nint, sp, ori, off, edge):
     if edge:
         print('Run edge detection')
         global edIm, canedges
-        # edIm = extractEdges(im_path)
-        edIm = updEdge(Ig, 20000)
+        edIm = extractEdges(im_path)
+        # edIm = updEdge(Ig, 20000)
         print('Link edge detection')
         canedges = ConnectCanny(edIm)
     if nint:

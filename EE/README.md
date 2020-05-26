@@ -51,6 +51,8 @@ The Breakout Board mainly routes signals and power between the Pi and the two Mo
 
 Along with connectors, the Breakout Board has a [PCA9540 2-channel I2C multiplexer](https://www.nxp.com/docs/en/data-sheet/PCA9540B.pdf). Because the AS5600 has a fixed address, the Pi can use the mux to select which sensor to read before pulling the value. This is done by writing the desired channel to a mux register before reading the value.
 
+### Note: The current design has 100k resistors at R1 and R2. These should be 4.7k resistors
+
 ## Connectors
 
 The 10-pin connections between Breakout and Motor Boards are sent over [2-foot Samtec cables (FFSD-05-D-24.00-01-N-R)](https://www.samtec.com/products/ffsd-05-d-24.00-01-n-r) to [surface-mount headers (FTSH-105-01-F-DV-K)](https://www.samtec.com/products/ftsh-105-01-f-dv-k). These were chosen because they are compact, long enough, keyed to prevent miswiring, and because free samples are available from the manufacturer. Future versions of the boards will use through-hole connectors which are easier to solder. If there is interest in a general-use Motor Board, the connectors may be swapped for 0.1" pitch connectors to preserve compatibility with existing DIY electronics kits.
