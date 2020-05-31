@@ -107,7 +107,7 @@
         console.log('new link', url);
         arturl = url;
         // Download points from link
-        fetch('http://localhost:5000'+url, {cache: 'reload'})
+        fetch(url, {cache: 'reload'})
         .then((response) => response.json())
         .then(function(data) {
             // extract points and speed into global variables
