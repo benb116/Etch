@@ -39,6 +39,10 @@ def root():
 def root2():
     return app.send_static_file('index2.html')
 
+@app.route('/index3.html')
+def root3():
+    return app.send_static_file('index3.html')
+
 @app.route('/socket.io.js')
 def socketioFile():
     return app.send_static_file('socket.io.js')

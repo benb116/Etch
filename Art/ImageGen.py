@@ -15,7 +15,7 @@ import sys
 import os
 from PIL import Image
 
-interactive = True
+interactive = False
 
 # Binning and hatching parameters
 ints = np.array([30, 30, 90, 120, 255])  # Brightness cutoffs
@@ -23,8 +23,10 @@ spacing = np.array([7, 7, 13, 15, 20])  # Corresponding line densities
 orientation = np.array([-1, 1, -1, 1, -1])  # Direction (not all the same way)
 offset = np.array([0, 0, 0, 0, 100000])  # Any offsets
 
+edgethr = [100, 200]
+
 folder = '/Users/Ben/Desktop/Etch/'
-jpgname = 'IwoJima'
+jpgname = 'Shuttle'
 im_path = os.path.join(folder, jpgname+'.jpg')
 Im = np.array(Image.open(im_path).convert('RGB'))
 Ig = rgb2gray(Im)
@@ -80,9 +82,9 @@ def SliderFigure(sumImage):
     # if not interactive:
         # return
 
-    fig = plt.figure(figsize=(8, 6))
+    fig = plt.figure(figsize=(15, 10))
     ax = fig.add_subplot(111)
-    fig.subplots_adjust(left=0.15, bottom=0.35)
+    fig.subplots_adjust(left=0.45, bottom=0.35)
     ax.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
 
     sax1 = fig.add_axes([0.15, 0.05, 0.5, 0.03])
@@ -116,11 +118,22 @@ def SliderFigure(sumImage):
     t4.on_submit(lambda x: space(4, x))
     t5.on_submit(lambda x: space(5, x))
 
+    eax1 = fig.add_axes([0.15, 0.5, 0.2, 0.03])
+    eax2 = fig.add_axes([0.15, 0.55, 0.2, 0.03])
+    e1 = Slider(eax1, 'Thr1', 0, 255, valfmt='%0.0f', valinit=edgethr[0])
+    e2 = Slider(eax2, 'Thr0', 0, 255, valfmt='%0.0f', valinit=edgethr[1])
+    e1.on_changed(lambda x: thresh(1, x))
+    e2.on_changed(lambda x: thresh(2, x))
+
     def slid(ind, val):
         global ints, spacing, threshhold
         ints[ind-1] = int(round(val))
         sumImage = Update(1, 0, 0, 0, 0)  # Set up bin images
         sumImage = Update(0, ind, 0, 0, 0)
+        # sumImage = Update(0, 2, 0, 0, 0)
+        # sumImage = Update(0, 3, 0, 0, 0)
+        # sumImage = Update(0, 4, 0, 0, 0)
+        # sumImage = Update(0, 5, 0, 0, 0)
         ax.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
         fig.canvas.draw()
 
@@ -131,6 +144,13 @@ def SliderFigure(sumImage):
         ax.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
         fig.canvas.draw()
 
+    def thresh(ind, val):
+        global edgethr
+        edgethr[ind-1] = val
+        sumImage = Update(0, 0, 0, 0, 1)  # Set up bin images
+        ax.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
+        fig.canvas.draw()
+
     plt.show()
 
 
@@ -138,8 +158,8 @@ def Update(nint, sp, ori, off, edge):
     if edge:
         print('Run edge detection')
         global edIm, canedges
-        edIm = extractEdges(im_path)
-        # edIm = updEdge(Ig, 20000)
+        edIm = extractEdges(im_path, edgethr[0], edgethr[1])
+        # edIm = updEdge(Ig, 70000)
         print('Link edge detection')
         canedges = ConnectCanny(edIm)
     if nint:
@@ -224,7 +244,9 @@ def ConnectSubgraphs(G, nnodes, dnodes):
     while len(sub_graphs) > 1:
 
         for i, sg in enumerate(sub_graphs):
-            # print(i)
+            print(i)
+            if i == len(sub_graphs) - 1:
+                continue
             sg = nx.node_connected_component(G, list(sg)[0])
             sg_node_num = list(sg)  # Get all nodes in the subgraph
             sg_node_coord = [dnodes[x] for x in sg_node_num]

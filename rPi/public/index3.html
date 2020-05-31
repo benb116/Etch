@@ -33,7 +33,6 @@
     let speed = 50; // px per sec
     let FPS = 60;
     let stepPerPix = FPS / speed; // How many virtual steps to take per pixel distance
-    const BIAS = 50; // Client has slight constant lag. Increase to make client earlier
     let arturl = '';
 
     var socket = io.connect('http://localhost:5000');

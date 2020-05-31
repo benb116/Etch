@@ -111,13 +111,21 @@ def GrowBorder(A, sg_node_coord):
     C = A.copy()
     C[sg_x, sg_y] = 0
     connected = False
+    # Rewrite this without loop
+    # Get matrix of distances from closest B
+    # Argmin the closest one and connect
+
+    # Rewrite to shift matrix instead of convolve
     while not connected:
+        # print('loop')
         if np.all(B == 1):
             connected = True
             break
 
         B = (convolve(B, kernel, mode='constant') > 0).astype(int)
+        # print('c')
         links = np.logical_and(B, C)
+        # print('d')
         if np.sum(links) > 0:
             connected = True
             linkcoord = getCities(links)

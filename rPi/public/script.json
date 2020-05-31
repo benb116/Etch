@@ -1,0 +1,9 @@
+{
+    "show script": {
+        "files": ["Adam2", "Albert", "Apple", "Audrey", "BF", "BG", "Batman", "Bird", "Boxes", "Brain", "Buzz", "Carson", "CircleSpiral", "Cubes", "Dali", "David", "Deer", "Eagles", "Eiffel", "Elephant", "Emma", "Emma2", "Etch", "Flag", "Flag2", "Ghostbusters", "Girl", "Gritty", "Homer", "IwoJima", "Jobs", "Jordan", "Knot", "Liberty", "Liberty2", "Liberty3 copy", "Liberty3", "Liberty3a", "Love", "Map", "Mario", "Mario2", "Mickey", "Mona", "NASA", "Nike", "Peter", "Phanatic", "Phillies", "Pipe", "Sam", "ShiftArt.js Shuttle", "Spongebob", "Steve", "Sweet", "Sweet2", "Taj", "Tesla", "Test", "Umbrella", "Wolf", "earth"],
+        "slowspeed": 50,
+        "mediumspeed": 500,
+        "fashspeed": 5000,
+        "shuffle": true
+    }
+}
