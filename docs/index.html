@@ -117,6 +117,7 @@
         console.log('new link', url);
         arturl = url;
         // Download points from link
+        ga('send', 'event', 'art', 'load', url);
         fetch(url, {cache: 'reload'})
         .then((response) => response.json())
         .then(function(data) {

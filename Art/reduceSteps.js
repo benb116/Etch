@@ -22,14 +22,14 @@ let minY = ben.arr.min(xy[1])[0];
 console.log(maxX, minX);
 console.log(maxY, minY);
 
-const bigX = (maxX - minX - screensize[0]+2*80) / (screensize[0]+2*80);
-const bigY = (maxY - minY - screensize[1]+2*50) / (screensize[1]+2*50);
-console.log(bigX, bigY);
-const big = Math.max(bigX, bigY, 0);
-if (big > 0) {
-    xy[0] = xy[0].map(e => Math.round(e / (1 + big)));
-    xy[1] = xy[1].map(e => Math.round(e / (1 + big)));
-}
+// const bigX = (maxX - minX - screensize[0]+2*80) / (screensize[0]+2*80);
+// const bigY = (maxY - minY - screensize[1]+2*50) / (screensize[1]+2*50);
+// console.log(bigX, bigY);
+// const big = Math.max(bigX, bigY, 0);
+// if (big > 0) {
+//     xy[0] = xy[0].map(e => Math.round(e / (1 + big)));
+//     xy[1] = xy[1].map(e => Math.round(e / (1 + big)));
+// }
 maxX = ben.arr.max(xy[0])[0];
 maxY = ben.arr.max(xy[1])[0];
 minX = ben.arr.min(xy[0])[0];

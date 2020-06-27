@@ -15,10 +15,12 @@ import sys
 import os
 from PIL import Image
 
-interactive = False
+print(sys.argv)
+print(len(sys.argv) > 1)
+interactive = (len(sys.argv) > 1)
 
 # Binning and hatching parameters
-ints = np.array([30, 30, 90, 120, 255])  # Brightness cutoffs
+ints = np.array([30, 30, 60, 90, 255])  # Brightness cutoffs
 spacing = np.array([7, 7, 13, 15, 20])  # Corresponding line densities
 orientation = np.array([-1, 1, -1, 1, -1])  # Direction (not all the same way)
 offset = np.array([0, 0, 0, 0, 100000])  # Any offsets
@@ -26,7 +28,7 @@ offset = np.array([0, 0, 0, 0, 100000])  # Any offsets
 edgethr = [100, 200]
 
 folder = '/Users/Ben/Desktop/Etch/'
-jpgname = 'Shuttle'
+jpgname = 'Apollo'
 im_path = os.path.join(folder, jpgname+'.jpg')
 Im = np.array(Image.open(im_path).convert('RGB'))
 Ig = rgb2gray(Im)
@@ -62,7 +64,7 @@ def main():
     stopstring = 'asd'
     stopstring = np.array2string(stops, separator=',')
     # print(stopstring)
-    file1 = open('rPi/public/art/'+jpgname+'.json', "w")
+    file1 = open('../rPi/public/art/'+jpgname+'.json', "w")
     file1.write(FormatFile(stopstring))
     file1.close()
     # Checks
@@ -82,7 +84,7 @@ def SliderFigure(sumImage):
     # if not interactive:
         # return
 
-    fig = plt.figure(figsize=(15, 10))
+    fig = plt.figure(figsize=(12, 7))
     ax = fig.add_subplot(111)
     fig.subplots_adjust(left=0.45, bottom=0.35)
     ax.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
@@ -152,7 +154,7 @@ def SliderFigure(sumImage):
         fig.canvas.draw()
 
     plt.show()
-
+    plt.close()
 
 def Update(nint, sp, ori, off, edge):
     if edge:
@@ -226,10 +228,11 @@ def createDiagEdges(mask, ori):
     # Each component is a long edge
     edges = []
     subs = (list(nx.connected_components(G)))
-    for s in subs:
-        # Extract the endpoints (degree == 1)
-        n1 = [v for v, d2 in G.degree(list(s)) if d2 == 1]
-        edges.append(n1)
+    # Extract the endpoints (degree == 1)
+    # for s in subs:
+        # n1 = [v for v, d2 in G.degree(list(s)) if d2 == 1]
+        # edges.append(n1)
+    edges = list(map(lambda s: [v for v, d2 in G.degree(list(s)) if d2 == 1], subs))
     return edges
 
 
@@ -369,9 +372,11 @@ def PathFinder(G, dnodes):
     print('Begin matching')
     odd_matching_dupes = nx.algorithms.max_weight_matching(OddComplete, True)
     print('End matching')
-    odd_matching = list(pd.unique([tuple(sorted([k, v])) for k, v in odd_matching_dupes.items()]))
+    if type(odd_matching_dupes) is set:
+        odd_matching = list(pd.unique([tuple(sorted([k, v])) for k, v in list(odd_matching_dupes)]))
+    else:
+        odd_matching = list(pd.unique([tuple(sorted([k, v])) for k, v in odd_matching_dupes.items()]))
 
-    # odd_matching = [(3858, 3906),(1464, 1667),(430, 2218),(3512, 5237),(2219, 5044),(2540, 2735),(2268, 2901),(232, 3154),(2262, 2489),(1435, 5097),(1024, 3836),(3509, 3669),(3915, 4076),(862, 1893),(18, 3312),(1784, 2438),(444, 2752),(3455, 4263),(4109, 4571),(1443, 1565),(4425, 4619),(139, 316),(3471, 4869),(1668, 4273),(2119, 2738),(1751, 1978),(2974, 4040),(436, 3846),(3808, 4014),(893, 4753),(741, 3098),(797, 1081),(1120, 2075),(2113, 4679),(779, 3403),(2696, 3911),(829, 1588),(3097, 4540),(1662, 4828),(490, 4892),(756, 3622),(1460, 3866),(583, 2504),(932, 1516),(1752, 3642),(639, 4980),(2143, 3214),(909, 5135),(2270, 3824),(3118, 4118),(4334, 4710),(49, 397),(582, 1645),(1725, 2481),(3038, 4311),(3295, 3879),(476, 3665),(1933, 4625),(1212, 1924),(201, 1634),(1758, 4797),(459, 481),(293, 5196),(937, 5228),(3010, 3417),(885, 3159),(2070, 2750),(1099, 5152),(731, 1118),(3582, 4638),(2988, 4829),(2391, 2509),(1990, 2090),(2829, 4198),(1360, 2874),(2782, 5041),(3426, 3655),(644, 3243),(1042, 1399),(4186, 4562),(1190, 3346),(409, 1523),(3361, 5280),(2388, 4353),(4156, 4499),(2437, 4362),(595, 1186),(4527, 5209),(288, 1570),(1521, 4439),(945, 2368),(840, 4443),(957, 2772),(2451, 4665),(1737, 2006),(56, 238),(2632, 4295),(3015, 5199),(4201, 5040),(1260, 2534),(1370, 2812),(1200, 3055),(90, 4050),(19, 2678),(613, 1174),(1044, 3750),(144, 4852),(2931, 4002),(224, 1969),(3444, 4529),(2332, 3811),(1590, 3392),(3019, 4582),(1112, 3224),(903, 1877),(1793, 2552),(1746, 4915),(4178, 4585),(3595, 5193),(808, 5005),(15, 3591),(999, 2785),(3377, 3525),(1060, 1371),(1278, 4655),(3339, 4494),(2281, 3325),(1385, 5052),(935, 2150),(1088, 2101),(247, 1065),(152, 3711),(570, 1555),(1988, 3050),(1142, 4380),(4996, 5254),(122, 1714),(578, 1254),(1329, 3948),(3360, 3914),(623, 3776),(728, 3108),(658, 1586),(338, 5016),(2566, 3969),(1984, 3668),(1117, 5247),(3763, 5069),(3639, 4244),(531, 1860),(3313, 4889),(2118, 2242),(612, 715),(2365, 3052),(3567, 3657),(1711, 5217),(3008, 4721),(515, 5292),(3175, 3279),(2746, 3350),(4090, 4219),(1965, 2131),(837, 1454),(324, 4845),(160, 2999),(369, 1808),(1031, 2633),(2013, 5014),(1859, 4150)]
     # For each match that is created
     print('Add parallel paths')
     for a in odd_matching:

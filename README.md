@@ -42,8 +42,8 @@ Art files contain the lists of points in order of travel. They also include info
 - [ ] Improve artwork generation algorithms
 - [ ] Develop a show script
 - [ ] Add support for arcs and splines
-- [ ] Improve webpage performance
-- [ ] Create standalone site with artwork
+- [x] Improve webpage performance
+- [x] Create standalone site with artwork
 - [ ] Add support for different hatching schemes
 
 ### Artwork
