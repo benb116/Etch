@@ -10,28 +10,33 @@ from scipy.ndimage import convolve, gaussian_filter
 
 uIg = []
 uline = []
-Mag = []
-M = []
+# Mag = []
+# M = []
 
 def updEdge(nIg, thr):
-  global uIg, uline, Mag, M
+  # global uIg, uline, Mag, M
   if len(uIg) == 0:
     Ig = nIg
 
   # plt.imshow(Ig)
   # plt.show()
-  if len(uline) == 0:
-    line = Ig
-    line = blur(line)
-    line = blur(line)
-    line = blur(line)
+  # if len(uline) == 0:
+  line = 255 - Ig
+  line = blur(line) / 25
+  line[line < 10] = 0
+  line = blur(line) / 25
+  line[line < 10] = 0
+  line = blur(line) / 25
+  line[line < 10] = 0
 
-    Mag, Magx, Magy, Ori = findDerivatives(line)
-    M = nonMaxSup(Mag, Ori)
-
+  Mag, Magx, Magy, Ori = findDerivatives(line)
+  M = nonMaxSup(line, Ori)
+  plt.imshow(line)
+  plt.show()
   # print(thr)
-  oline = (M & (Mag > thr))
-
+  oline = ((M>0) & (line>40))
+  plt.imshow(M)
+  plt.show()
   oline = thinOut(oline)
   oline = despeck(oline)
 

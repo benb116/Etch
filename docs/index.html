@@ -34,7 +34,7 @@
     const can = document.getElementById("c");
     const c = can.getContext("2d");
     c.scale(1,1);
-    c.lineWidth = 1;
+    c.lineWidth = 0.5;
 
     let timeouts = [];
     let points, dist, numsteps, stepsto, nframes, distto, dpf, totald, totalt;
@@ -65,7 +65,7 @@
     }
 
     function Begin(timeSec) {
-        dpf = speed / FPS;
+        const dpf = speed / FPS;
         let framecounter = 0;
         let curdist = 0;
         let oldanimstate = getstate(dist, curdist);
@@ -108,11 +108,6 @@
     }
 
     function Setup(url, speedprep) {
-        // console.log(immediate);
-        // LINE = 1 - Boolean(immediate);
-        // for (var i=0; i<timeouts.length; i++) {
-        //     clearTimeout(timeouts[i]);
-        // }
         ClearScreen();
         console.log('new link', url);
         arturl = url;
@@ -124,7 +119,10 @@
             // extract points and speed into global variables
             console.log(data);
             points = data.points;
-            speed = (speedprep || data.pxSpeed);
+            speed = data.pxSpeed;
+            if (document.getElementById("myCheck").checked) {
+                speed = 1000;
+            }
             stepPerPix = FPS / speed;
             console.log(1000/FPS);
             // Predraw

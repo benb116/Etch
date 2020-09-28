@@ -18,6 +18,7 @@ from PIL import Image
 print(sys.argv)
 print(len(sys.argv) > 1)
 interactive = (len(sys.argv) > 1)
+# interactive = True
 
 # Binning and hatching parameters
 ints = np.array([30, 30, 60, 90, 255])  # Brightness cutoffs
@@ -28,7 +29,7 @@ offset = np.array([0, 0, 0, 0, 100000])  # Any offsets
 edgethr = [100, 200]
 
 folder = '/Users/Ben/Desktop/Etch/'
-jpgname = 'Apollo'
+jpgname = 'Tsunami'
 im_path = os.path.join(folder, jpgname+'.jpg')
 Im = np.array(Image.open(im_path).convert('RGB'))
 Ig = rgb2gray(Im)
@@ -45,7 +46,7 @@ hatchedgim = [[] for i in ints]
 def main():
     global Ig, blurred, thresh  # Find a better way than global vars
 
-    Ig = rgb2gray(Im)
+    # Ig = rgb2gray(Im)
     blurred = blur(Ig)  # Smooth out any small specks
     # Build up a matrix from various bins and operations
     sumImage = Update(0, 0, 0, 0, 1)  # Edge detection
@@ -155,13 +156,15 @@ def SliderFigure(sumImage):
 
     plt.show()
     plt.close()
+    print(edgethr)
+    print(ints)
 
 def Update(nint, sp, ori, off, edge):
     if edge:
         print('Run edge detection')
         global edIm, canedges
         edIm = extractEdges(im_path, edgethr[0], edgethr[1])
-        # edIm = updEdge(Ig, 70000)
+        # edIm = updEdge(Ig, 100000)
         print('Link edge detection')
         canedges = ConnectCanny(edIm)
     if nint:
@@ -242,6 +245,10 @@ def ConnectSubgraphs(G, nnodes, dnodes):
     all_coord = [dnodes[x] for x in list(G.nodes())]
     A = NodeMap(all_coord)
 
+
+    # TODO: rewrite: shift up and left, connect if include other, repeat if not
+
+
     # For each subgraph, connect it to the closest node in a different subgraph
     # Repeat until there's only one
     while len(sub_graphs) > 1:
@@ -255,7 +262,7 @@ def ConnectSubgraphs(G, nnodes, dnodes):
             sg_node_coord = [dnodes[x] for x in sg_node_num]
 
             newedge = GrowBorder(A, sg_node_coord)
-            if newedge is not None:
+            if newedge != None:
                 G.add_edge(nnodes[newedge[0]], nnodes[newedge[1]], weight=newedge[2])
 
         sub_graphs = list(nx.connected_components(G))
@@ -274,7 +281,7 @@ def EasyLinkOne(G):
     filterne = [i for indx, i in enumerate(n1nei) if neideg[indx] is True]
     # Add parallel edges
     for n1, ne in zip(filtern1, filterne):
-        if G.degree(n1) is not 1:
+        if G.degree(n1) != 1:
             continue
         G.add_edge(n1, ne, weight=G.get_edge_data(n1, ne)[0]['weight'])
     return G
@@ -290,7 +297,7 @@ def EasyLinkOdd(G):
     filterne = [i for indx, i in enumerate(nOnei) if neideg[indx] is True]
 
     for nO, ne in zip(filternO, filterne):
-        if G.degree(nO) % 2 is not 1:
+        if G.degree(nO) % 2 != 1:
             continue
         G.add_edge(nO, ne, weight=G.get_edge_data(nO, ne)[0]['weight'])
 
@@ -464,10 +471,12 @@ def genGraph(es):
     G = LinkDegOdd(G, nnodes, dnodes)
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
-    print('LinkDegOdd 2')
-    G = LinkDegOdd(G, nnodes, dnodes)
-    print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
-    print("Num One", len(n1deg(G)))  # Number of degree one nodes
+    while len(nOdeg(G)) > 600:
+        print('LinkDegOdd 2')
+        G = LinkDegOdd(G, nnodes, dnodes)
+        print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
+        print("Num One", len(n1deg(G)))  # Number of degree one nodes
+    
     PlotGraph(G, ndnodes)
 
     # Match remaining odd nodes with longer parallel paths

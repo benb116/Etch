@@ -1,9 +1,13 @@
 #! python3
-from flask import Flask, request, send_from_directory
+from flask import Flask
 from flask_socketio import SocketIO, emit
 import time
 import threading
 import json
+
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 from integration.pi_utils import IsRPi
 
@@ -84,8 +88,8 @@ def on_clientArtReady(url):
 
     # Determine unix start time
     print(len(points))
-    TS = time.time() + 0.00025 * len(points) + 0.5
-
+    TS = time.time() + 0.5
+    print(TS)
     print('Init')
     threading.Thread(target=genThreads, args=(points, TS, pxSpeed, pxPerRev)).start()
     emit('startTime', TS);

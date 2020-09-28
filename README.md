@@ -18,7 +18,7 @@ The motor boards serve two functions:
 1. **AUTO Mode** - Take in step and direction signals from the breakout board and route them to the onboard stepper driver.
 2. **MANUAL Mode** - Sense the orientation of a diametrically polarized magnet on the back of the motor axis. The motor position is then sent to the Pi to monitor the user's input.
 
-The motors, shaft couplers, and knobs are mounted to two brackets that are adhered to the TV. Lasercut polystyrene sheets form the outer shell and are positioned using internal ribs.
+The motors, shaft couplers, and knobs are mounted to two brackets that are adhered to the TV. 3D printed shell pieces are connected to an aluminum extrusion frame and wrapped in red vinyl.
 
 ### Software
 
@@ -44,12 +44,12 @@ Art files contain the lists of points in order of travel. They also include info
 - [ ] Add support for arcs and splines
 - [x] Improve webpage performance
 - [x] Create standalone site with artwork
-- [ ] Add support for different hatching schemes
 
 ### Artwork
 
 - [ ] Integrate Open Street Map
 - [ ] Math and geometry
+- [ ] Add support for different hatching schemes
 
 ## Acknowledgements
 
