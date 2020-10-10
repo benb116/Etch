@@ -43,8 +43,8 @@ const difY = avgY - screenmid[1];
 console.log(maxX, minX, avgX, difX);
 console.log(maxY, minY, avgY, difY);
 
-const newX = xy[0].map(e => Math.round((e - difX)));
-const newY = xy[1].map(e => Math.round((e - difY)));
+const newX = xy[0].map(e => ((e - difX)));
+const newY = xy[1].map(e => ((e - difY)));
 const newpts = ben.arr.transpose([newX, newY]);
 data.points = newpts;
 

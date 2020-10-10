@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas</title>
+    <style type="text/css">
+        body {
+            background-color: #d1d1d1;
+            margin: 0;
+        }
+        #ctrl {
+            opacity: 0
+        }
+        #ctrl:hover {
+            opacity: 1
+        }
+    </style>
+</head>
+<body>
+    <div id="ctrl" style="position: fixed;z-index: 10">
+        <input type="text" name="artname" onkeydown="search(this)" style="" autofocus />
+        <input type="checkbox" name="fastcheck" id="myCheck" onclick="ChangeSpeed()"> Fast?
+    </div>
+
+    <svg xmlns="http://www.w3.org/2000/svg" height="800" width="1200" viewBox="0 0 1200 800">
+        <path
+            d=""
+            stroke= "#000" 
+            stroke-width= "1" 
+            fill= "none" 
+            stroke-dasharray= "0 0" 
+            stroke-dashoffset= "0"
+            id="mainpath">
+        </path>
+    </svg>
+
+</body>
+<script src="socket.io.js"></script>
+<script type="text/javascript" charset="utf-8">
+
+    const path = document.getElementById('mainpath');
+    let speed = 50; // px per sec
+    const BIAS = 50; // Client has slight constant lag. Increase to make client earlier
+    let arturl = '';
+
+    var socket = io.connect('http://localhost:5000');
+    socket.on('connect', function() {
+        console.log('Connected');
+    });
+
+    function search(ele) {
+        if(event.key === 'Enter') {
+            setTimeout(function() { Setup('/art/'+ele.value+'.json', speed); }, 1000);
+        }
+    }
+
+    function ChangeSpeed() {
+        var checkBox = document.getElementById("myCheck");
+        console.log(checkBox);
+        if (checkBox.checked) {
+            speed = 10000;
+        } else {
+            speed = 50;
+        }
+        Setup(arturl, speed);
+    }
+
+    // When the server sends a link to a new art file
+    socket.on('link', Setup);
+    // When the server sends the drawing start time (in seconds)
+    socket.on('startTime', (startTime) => {
+        setTimeout(() => { Begin(); }, startTime*1000 - Date.now());
+    });
+
+    function Begin(timeSec) {
+        // Trigger a layout so styles are calculated & the browser
+        // picks up the starting position before animating
+        var length = path.getTotalLength();
+        var speedtime = length/speed;
+        path.getBoundingClientRect();
+        // Define our transition
+        path.style.transition = path.style.WebkitTransition =
+          'stroke-dashoffset '+speedtime+'s';
+        // Go!
+        path.style.strokeDashoffset = '0';
+    }
+
+    // When we get a tick event
+    socket.on('tick', function(mn, dir) {
+        console.log(Date.now());
+        console.log(mn, dir);
+        let newp = coord.slice();
+        newp[mn] += dir; // Determine the new point
+        DrawStep(coord, newp);
+    });
+    // Move the current location
+    socket.on('coord', function(x, y) { coord = [x, y]; });
+
+    function Setup(url, speedprep) {
+        // ClearScreen();
+        console.log('new link', url);
+        arturl = url;
+        // Download points from link
+        fetch('http://localhost:5000'+url, {cache: 'reload'})
+        .then((response) => response.json())
+        .then(function(data) {
+            // extract points and speed into global variables
+            console.log(data);
+            points = data.points;
+            speed = data.pxSpeed;
+            if (document.getElementById("myCheck").checked) {
+                speed = 10000;
+            }
+
+            var path = document.getElementById('mainpath');
+
+            path.setAttribute('d', genPath(data.points));
+
+            var length = path.getTotalLength();
+            var speedtime = length/speed;
+            // Clear any previous transition
+            path.style.transition = path.style.WebkitTransition = 'none';
+            // Set up the starting positions
+            path.style.strokeDasharray = length + ' ' + length;
+            path.style.strokeDashoffset = length;
+            
+
+            console.log('Time (min):', speedtime/60);
+
+            socket.emit('clientArtReady', url);
+        })
+        .catch(console.log);
+    }
+
+    function genPath(pts) {
+        const strarr = pts.map(pt => 'L ' + pt.join(' ') + ' ');
+        const strjoin = strarr.join(' ');
+        return strjoin.replace('L', 'M');
+    }
+
+</script>
+</html>

@@ -31,13 +31,14 @@
     const can = document.getElementById("c");
     const c = can.getContext("2d");
     c.scale(1,1);
-    c.lineWidth = 0.5;
+    c.lineWidth = 1;
+    c.strokeStyle = 'gray';
 
     let timeouts = [];
     let points, dist, numsteps, stepsto, nframes, distto, dpf, totald, totalt;
     let coord = [100, 100];
     let speed = 50; // px per sec
-    let FPS = 60;
+    let FPS = 15;
     let stepPerPix = FPS / speed; // How many virtual steps to take per pixel distance
     const BIAS = 50; // Client has slight constant lag. Increase to make client earlier
     let arturl = '';
@@ -142,7 +143,7 @@
             points = data.points;
             speed = data.pxSpeed;
             if (document.getElementById("myCheck").checked) {
-                speed = 1000;
+                speed = 10000;
             }
             stepPerPix = FPS / speed;
             console.log(1000/FPS);
