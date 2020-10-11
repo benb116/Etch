@@ -17,14 +17,20 @@
             background-color: #d1d1d1;
             margin: 0;
         }
+        #ctrl {
+            opacity: 0
+        }
+        #ctrl:hover {
+            opacity: 1
+        }
     </style>
 </head>
 <body>
-    <div style="position: fixed;z-index: 10">
+    <div id="ctrl" style="position: fixed;z-index: 10">
         <input type="text" name="artname" onkeydown="search(this)" style="" autofocus />
         <input type="checkbox" name="fastcheck" id="myCheck" onclick="ChangeSpeed()"> Fast?
     </div>
-    <canvas id="c" width="5000" height="5000" style="position: fixed;"></canvas>
+    <canvas id="c" width="5000" height="5000" style="margin: auto;"></canvas>
 </body>
 <script type="text/javascript" charset="utf-8">
 
@@ -42,6 +48,7 @@
     let speed = 50; // px per sec
     let FPS = 60;
     let stepPerPix = FPS / speed; // How many virtual steps to take per pixel distance
+    const BIAS = 50; // Client has slight constant lag. Increase to make client earlier
     let arturl = '';
 
     var LINE = 1;
@@ -49,7 +56,7 @@
 
     function search(ele) {
         if(event.key === 'Enter') {
-            Setup('/art/'+ele.value+'.json', speed);        
+            setTimeout(function() { Setup('/art/'+ele.value+'.json', speed); }, 1000);
         }
     }
 
