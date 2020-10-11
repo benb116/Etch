@@ -20,7 +20,7 @@
         <input type="text" name="artname" onkeydown="search(this)" style="" autofocus />
         <input type="checkbox" name="fastcheck" id="myCheck" onclick="ChangeSpeed()"> Fast?
     </div>
-    <canvas id="c" width="5000" height="5000" style="margin: auto;"></canvas>
+    <canvas id="c" width="1000" height="700" style="margin: auto;"></canvas>
 </body>
 <script src="socket.io.js"></script>
 <script type="text/javascript" charset="utf-8">
@@ -31,7 +31,7 @@
     const can = document.getElementById("c");
     const c = can.getContext("2d");
     c.scale(1,1);
-    c.lineWidth = 1;
+    c.lineWidth = 1.5;
     c.strokeStyle = 'gray';
 
     let timeouts = [];
@@ -124,7 +124,7 @@
         console.log(Date.now());
         console.log(mn, dir);
         let newp = coord.slice();
-        newp[mn] += dir; // Determine the new point
+        newp[mn] += dir/5; // Determine the new point
         DrawStep(coord, newp);
     });
     // Move the current location

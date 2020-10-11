@@ -3,13 +3,23 @@ from flask import Flask
 from flask_socketio import SocketIO, emit
 import time
 import threading
+from multiprocessing import Process
 import json
 
 import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
+import eventlet
+eventlet.monkey_patch()
+
 from integration.pi_utils import IsRPi
+
+def readAngle():
+    pass
+
+def genThreads(a, b, c, d):
+    pass
 
 onboard = False
 if IsRPi():
@@ -17,12 +27,6 @@ if IsRPi():
     from RPi import GPIO
     GPIO.setmode(GPIO.BCM)
     from integration.encoder import readAngle
-
-def readAngle():
-    pass
-
-def genThreads(a, b, c, d):
-    pass
 
 from integration.auto import genThreads
 
@@ -32,7 +36,7 @@ app.config['SECRET_KEY'] = 'secret!benwashere'
 socketio = SocketIO(app)
 
 url = '/art/Test.json'
-AUTO = True # Current mode
+AUTO = False # Current mode
 isConnected = False
 
 @app.route('/')
@@ -102,14 +106,14 @@ bitsPerStep = 20
 oldVal = [0, 0]
 
 def InitManual():
-    if onboard:
-        motors.toggle(0)
+    # if onboard:
+        # motors.toggle(0)
     oldVal[0] = readAngle(0)
     oldVal[1] = readAngle(1)
     print('InitManual')
     while ~AUTO:
         # print('check')
-        time.sleep(0.01)
+        eventlet.sleep(0.01)
         checkTick(0)
         checkTick(1)
         # print('checkEnd')
@@ -118,16 +122,23 @@ def checkTick(mn):
     o = oldVal[mn]
     # print(o)
     n = readAngle(mn)
-    print(n)
+    # print(n)
     diff = (n - o)
     if abs(diff) > 4096/2:
         diff = diff + 4096 * (-1 + 2*(o > n))
     if abs(diff) >= bitsPerStep:
-        # emit('tick', (mn, round(diff/bitsPerStep)))
-        # print('tick', (mn, round(diff/bitsPerStep)))
+        print('tick', (mn, round(diff/bitsPerStep)))
+        socketio.emit('tick', (mn, round(diff/bitsPerStep)))
         oldVal[mn] = n
+
+def startIO():
+    socketio.run(app)
+
+eventlet.spawn(InitManual)
 
 if __name__ == '__main__':
     print('begin')
+    # Process(target = startIO).start()
     socketio.run(app)
+    # Process(target = InitManual).start()
     # InitManual()
