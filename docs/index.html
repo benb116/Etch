@@ -52,7 +52,7 @@
 
     function search(ele) {
         if(event.key === 'Enter') {
-            setTimeout(function() { Setup('/art/'+ele.value+'.json', speed); }, 1000);
+            setTimeout(function() { Setup('https://raw.githubusercontent.com/benb116/Etch/master/docs/art/'+ele.value+'.json', speed); }, 1000);
         }
     }
 
@@ -67,11 +67,12 @@
         Setup(arturl, speed);
     }
 
-    function Begin(timeSec) {
+    function Begin() {
         // Trigger a layout so styles are calculated & the browser
         // picks up the starting position before animating
         var length = path.getTotalLength();
         var speedtime = length/speed;
+        console.log('www');
         path.getBoundingClientRect();
         // Define our transition
         path.style.transition = path.style.WebkitTransition =
@@ -109,6 +110,7 @@
             path.style.strokeDashoffset = length;
             
             console.log('Time (min):', speedtime/60);
+            Begin();
         })
         .catch(console.log);
     }

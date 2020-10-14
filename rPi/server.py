@@ -49,10 +49,6 @@ def root():
 def root2():
     return app.send_static_file('index2.html')
 
-@app.route('/index3.html')
-def root3():
-    return app.send_static_file('index3.html')
-
 @app.route('/socket.io.js')
 def socketioFile():
     return app.send_static_file('socket.io.js')
@@ -61,7 +57,6 @@ def socketioFile():
 def on_connect():
     print('connected')
     isConnected = True
-    # SendArtLink(url)
 
 @socketio.on('AUTO')
 def on_modeChange(a):
@@ -133,9 +128,6 @@ def checkTick(mn):
         print('tick', (mn, round(diff/bitsPerStep)))
         socketio.emit('tick', (mn, round(diff/bitsPerStep)))
         oldVal[mn] = n
-
-def startIO():
-    socketio.run(app)
 
 eventlet.spawn(InitManual)
 
