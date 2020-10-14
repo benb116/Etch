@@ -40,13 +40,16 @@ def turnOn():
 def turnOff():
     GPIO.output(pSlp, 1)
 
+def motorsOn(on):
+    GPIO.output(pSlp, 1-on) # Active low
+
 def setRes(res):
     MODE = resolution[res]
     print(resolution[res])
     GPIO.output(pRes, resolution[res])
 
 def step(mn, mdir):
-    print(mn, mdir)
+    # print(mn, mdir)
     msPin = pStp1 if mn == 1 else pStp2
     mdPin = pDir1 if mn == 1 else pDir2
     GPIO.output(mdPin, 1 if mdir == 1 else 0)
@@ -59,35 +62,35 @@ def stepsPerRev():
     exp = MODE[2]*4 + MODE[1]*2 + MODE[0]
     return 200 * 2**exp
 
-# DISABLED = 0
-setRes('1/4')
-print('222ee')
-# turnOff()
-# time.sleep(2)
+# # DISABLED = 0
+# setRes('1/4')
+# print('222ee')
+# # turnOff()
+# # time.sleep(2)
 # turnOn()
-# time.sleep(2)
+# # time.sleep(2)
 # turnOff()
-# time.sleep(2)
+# # time.sleep(2)
+# # turnOn()
+# # time.sleep(2)
+# # turnOff()
+# # time.sleep(2)
 # turnOn()
-# time.sleep(2)
-# turnOff()
-# time.sleep(2)
-turnOn()
 # DISABLED = 0
 # print('333')
 # for x in range(1,400):
 #     print('st')
-#     step(1, 0)
+#     step(2, 0)
 #     time.sleep(0.01)
 # # for x in range(1,200):
 #     # print('st')
-#     step(0, 1)
+#     # step(0, 1)
 #     # time.sleep(0.01)
 # # time.sleep(2)
 
-# turnOff()
-# time.sleep(200)
+# # turnOff()
+# # time.sleep(200)
 
-# # turnOn()
-# # good practise to cleanup GPIO at some point before exit
+# # # turnOn()
+# # # good practise to cleanup GPIO at some point before exit
 # GPIO.cleanup()

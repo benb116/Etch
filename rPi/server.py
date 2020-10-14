@@ -27,6 +27,8 @@ if IsRPi():
     from RPi import GPIO
     GPIO.setmode(GPIO.BCM)
     from integration.encoder import readAngle
+    from integration.motors import motorsOn
+    motorsOn(False)
 
 from integration.auto import genThreads
 
@@ -95,6 +97,7 @@ def on_clientArtReady(url):
     TS = time.time() + 0.5
     print(TS)
     print('Init')
+    AUTO = True
     threading.Thread(target=genThreads, args=(points, TS, pxSpeed, pxPerRev)).start()
     emit('startTime', TS);
 
@@ -114,8 +117,8 @@ def InitManual():
     while ~AUTO:
         # print('check')
         eventlet.sleep(0.01)
-        checkTick(0)
-        checkTick(1)
+        # checkTick(0)
+        # checkTick(1)
         # print('checkEnd')
 
 def checkTick(mn):

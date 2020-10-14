@@ -6,6 +6,7 @@
         body {
             background-color: #d1d1d1;
             margin: 0;
+            overflow: hidden;
         }
         #ctrl {
             opacity: 0
@@ -36,7 +37,7 @@
 
     let timeouts = [];
     let points, dist, numsteps, stepsto, nframes, distto, dpf, totald, totalt;
-    let coord = [100, 100];
+    let coord = [300, 100];
     let speed = 50; // px per sec
     let FPS = 15;
     let stepPerPix = FPS / speed; // How many virtual steps to take per pixel distance

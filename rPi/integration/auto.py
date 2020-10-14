@@ -6,6 +6,7 @@ from . import pi_utils
 
 onboard = False
 if pi_utils.IsRPi():
+    onboard = True
     from . import motors
     import RPi.GPIO as GPIO
     GPIO.setmode(GPIO.BCM)
@@ -41,8 +42,8 @@ def pythag(a, b):
 def linInterp(x1, y1, x2, y2):
 
     # Pixel distances
-    d1 = abs(x2 - x1)
-    d2 = abs(y2 - y1)
+    d1 = abs(y2 - y1)
+    d2 = abs(x2 - x1)
 
     te = pythag(d1, d2)/speed # Time elapsed
 
@@ -58,8 +59,8 @@ def linInterp(x1, y1, x2, y2):
     t2 = 0 if s2 == 0 else te / s2
 
     # Which direction to rotate each motor (1 or -1)
-    dir1 = 1 - 2 * ((x2 - x1) < 0)
-    dir2 = 1 - 2 * ((y2 - y1) < 0)
+    dir1 = -1 + 2 * ((y2 - y1) < 0)
+    dir2 = 1 - 2 * ((x2 - x1) < 0)
 
     # print(d1, r1, s1, t1, dir1)
     # print(d2, r2, s2, t2, dir2)
@@ -114,8 +115,6 @@ def createStepFn(mn, dir):
     def s():
         if onboard:
             motors.step(mn, dir)
-        # print(mn*dir)
-        pass
     return s
 
 # Begin the motor threads that were already created
@@ -137,7 +136,8 @@ def genThreads(pts, startT, pxSpeed, pxRev):
     speed = pxSpeed
     pretime = startT; # Updated timestamp at which the next threads will start
     # motors.toggle(1)
-    for i in range(len(pts)-1):
+    motors.motorsOn(True)
+    for i in range(len(pts) - 1):
         a = pts[i][0]
         b = pts[i][1]
         c = pts[i+1][0]
