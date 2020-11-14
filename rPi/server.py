@@ -39,8 +39,8 @@ socketio = SocketIO(app)
 
 url = '/art/Test.json'
 AUTO = False # Current mode
-isConnected = False
 
+# Serve static files
 @app.route('/')
 def root():
     return app.send_static_file('index.html')
@@ -53,10 +53,10 @@ def root2():
 def socketioFile():
     return app.send_static_file('socket.io.js')
 
+# Socket stuff
 @socketio.on('connect')
 def on_connect():
     print('connected')
-    isConnected = True
 
 @socketio.on('AUTO')
 def on_modeChange(a):
@@ -70,6 +70,7 @@ def on_modeChange(a):
 
 ## AUTO MODE ##
 
+# Send an art file
 @app.route('/art/<path:path>')
 def send_art(path):
     print('art/'+path)
@@ -92,8 +93,9 @@ def on_clientArtReady(url):
     TS = time.time() + 0.5
     print(TS)
     print('Init')
-    AUTO = True
+    # Begin stepping at the start time
     threading.Thread(target=genThreads, args=(points, TS, pxSpeed, pxPerRev)).start()
+    # Tell the client when the start time is
     emit('startTime', TS);
 
 
@@ -109,11 +111,12 @@ def InitManual():
     oldVal[0] = readAngle(0)
     oldVal[1] = readAngle(1)
     print('InitManual')
+    # Repeatedly check both for changes
     while ~AUTO:
         # print('check')
         eventlet.sleep(0.01)
-        # checkTick(0)
-        # checkTick(1)
+        checkTick(0)
+        checkTick(1)
         # print('checkEnd')
 
 def checkTick(mn):
@@ -122,12 +125,14 @@ def checkTick(mn):
     n = readAngle(mn)
     # print(n)
     diff = (n - o)
+    # If the diff is > half a rotation, assume it was less than half the other way
     if abs(diff) > 4096/2:
         diff = diff + 4096 * (-1 + 2*(o > n))
+    # If above some threshold for a tick
     if abs(diff) >= bitsPerStep:
         print('tick', (mn, round(diff/bitsPerStep)))
         socketio.emit('tick', (mn, round(diff/bitsPerStep)))
-        oldVal[mn] = n
+    oldVal[mn] = n
 
 eventlet.spawn(InitManual)
 

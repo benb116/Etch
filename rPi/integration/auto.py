@@ -8,28 +8,10 @@ onboard = False
 if pi_utils.IsRPi():
     onboard = True
     from . import motors
-    import RPi.GPIO as GPIO
-    GPIO.setmode(GPIO.BCM)
-
-    pSlp = 12
-    pRes = (14, 15, 18)
-
-    pStp1 = 21
-    pDir1 = 20
-    pStp2 = 26
-    pDir2 = 19
-
-    GPIO.setup(pSlp, GPIO.OUT)
-    GPIO.setup(pRes, GPIO.OUT)
-    GPIO.setup(pStp1, GPIO.OUT)
-    GPIO.setup(pDir1, GPIO.OUT)
-    GPIO.setup(pStp2, GPIO.OUT)
-    GPIO.setup(pDir2, GPIO.OUT)
 
 # motors.turnOn()
 
-stepsPerRev = 200
-# stepsPerRev = motors.stepsPerRev() # Stepper motor takes in n steps to turn a full 360 deg
+stepsPerRev = motors.stepsPerRev() # Stepper motor takes in n steps to turn a full 360 deg
 pxPerRev = 80 # pixels per revolution (XY, not full vector) - REPLACED
 speed = 40 # pix per sec - REPLACED
 
@@ -135,7 +117,7 @@ def genThreads(pts, startT, pxSpeed, pxRev):
     pxPerRev = pxRev
     speed = pxSpeed
     pretime = startT; # Updated timestamp at which the next threads will start
-    # motors.toggle(1)
+
     motors.motorsOn(True)
     for i in range(len(pts) - 1):
         a = pts[i][0]

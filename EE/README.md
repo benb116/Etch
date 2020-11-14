@@ -36,18 +36,20 @@ Along with support components and connectors, the PCB has two main parts:
 
 The Breakout Board mainly routes signals and power between the Pi and the two Motor Boards. It accepts power from a DC jack and 12 signals from the Pi via jumper cable:
 
-1. **3v3**
-2. **-ENABLE** | *Active low* | Pull this pin high to disable the motors (used in MANUAL mode)
-3. **SCL** | *Pulled high* | Multiplexer I2C Clock pin
-4. **DIRB** | *Pulled low* | Direction control pin for motor B
-5. **SDA** | *Pulled high* | Multiplexer I2C Data pin
-6. **STEPB** | *Pulled low* | Step pulse pin for motor B
-7. **MS3** | *Pulled low* | Microstepping control pin 3
-8. **DIRA** | *Pulled low* | Direction control pin for motor A
-9. **MS2** | *Pulled low* | Microstepping control pin 2
-10. **STEPA** | *Pulled low* | Step pulse pin for motor A
-11. **MS1** | *Pulled low* | Microstepping control pin 1
-12. **GND**
+| Pin Name | Hi / Lo | Description | Connect to RPi Pin 
+| -------- | ------- | -------- | ------- | 
+| **GND** | | Ground | GND
+| **STEPA** | *Pulled low* | Step pulse pin for motor A | GPIO 21 (Pin 40)
+| **DIRA** | *Pulled low* | Direction control pin for motor A | GPIO 20 (Pin 38)
+| **STEPB** | *Pulled low* | Step pulse pin for motor B | GPIO 26 (Pin 37)
+| **DIRB** | *Pulled low* | Direction control pin for motor B | GPIO 19 (Pin 35)
+| **-ENABLE** | *Active low* | Pull this pin high to disable the motors (used in MANUAL mode) | GPIO 12 (Pin 32)
+| **MS1** | *Pulled low* | Microstepping control pin 1 | GPIO 14 (Pin 8)
+| **MS2** | *Pulled low* | Microstepping control pin 2 | GPIO 15 (Pin 10)
+| **MS3** | *Pulled low* | Microstepping control pin 3 | GPIO 18 (Pin 12)
+| **SDA** | *Pulled high* | Multiplexer I2C Data pin | GPIO 2 (Pin 3)
+| **SCL** | *Pulled high* | Multiplexer I2C Clock pin | GPIO 3 (Pin 5)
+| **3v3** | | 3.3V from the RPi | 3.3V |
 
 Along with connectors, the Breakout Board has a [PCA9540 2-channel I2C multiplexer](https://www.nxp.com/docs/en/data-sheet/PCA9540B.pdf). Because the AS5600 has a fixed address, the Pi can use the mux to select which sensor to read before pulling the value. This is done by writing the desired channel to a mux register before reading the value.
 

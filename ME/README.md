@@ -6,11 +6,10 @@ The sizes and dimensions for many of these parts will depend on the size of the 
 
 Some notes about specific parts:
 
-* The shell is made from 18 3D printed pieces mounted to an 80/20 frame, then wrapped in a vinyl ashesive sheet. This isn't the best way to make a frame like this, but it was the best way to make one with the tools I had during quarantine.
+* The shell is made from 18 3D printed pieces mounted to an 80/20 frame, then wrapped in a vinyl ashesive sheet. This isn't the best way to make a frame like this, but it was the best way to make one cheaply with the tools I had during quarantine.
 * The 80/20 crossbar rests on the top of the TV, and ribs help position the shell on the TV.
-* Because I didn't trust an interference fit to hold the large knobs on the small stepper motor D-shafts (and the exposed length of the shafts was fairly short), I machined two shaft couplers. The couplers have built in set screws to hold the motor D-shafts and fit more snuggly into the knobs.
 * The knobs are 3D printed and designed to not require supports if printed face down. Consider reducing infill and increasing the wall thickness to decrease the print time.
-* 3D printed brackets hold the motors to the TV because I did not want the frame to support their weight and forces. Because TVs have no mounting features, the brackets are adhered to the TV using VHB.
+* 3D printed brackets hold the motors to the TV because I did not want the frame or shell to support their weight and forces. Because TVs have no mounting features, the brackets are adhered to the TV using VHB.
 * Thin spacer parts separate the Motor Boards from the motors and ensure that the magnetic sensor is correctly spaced.
 
 ## Bill of Materials
@@ -24,7 +23,7 @@ Some notes about specific parts:
 | Stepper Motors | $11 | 2 | $22 | [https://amazon.com/gp/product/B00PNEQ9T4](https://amazon.com/gp/product/B00PNEQ9T4) |
 | A4988 Drivers | $9 | 1 | $9 | [https://amazon.com/gp/product/B01FFGAKK8](https://amazon.com/gp/product/B01FFGAKK8) |
 | DC Power Brick | $16 | 1 | $16 | [https://amazon.com/gp/product/B01ISM267G](https://amazon.com/gp/product/B01ISM267G) |
-| Red vinyl wrap | $40 | 1 | $ 40 | [https://amazon.com/gp/product/B01LQIZX6U](https://smile.amazon.com/gp/product/B01LQIZX6U/ref=ppx_yo_dt_b_asin_title_o03_s00?ie=UTF8&psc=1) |
+| Red vinyl wrap | $40 | 1 | $ 40 | [https://amazon.com/gp/product/B01LQIZX6U](https://smile.amazon.com/gp/product/B01LQIZX6U/) |
 | 80/20 accessories | $40 | 1 | $ 40 | [https://8020.net/](https://8020.net/) |
 | microHDMI to HDMI Adapters | $8 | 1 | $8 | [https://amazon.com/gp/product/B07K21HSQX](https://amazon.com/gp/product/B07K21HSQX) |
 | Jumper wires | $6 | 1 | $6 | [https://amazon.com/dp/B01L5UKAPI/](https://amazon.com/dp/B01L5UKAPI/) |
@@ -52,7 +51,11 @@ Some notes about specific parts:
 2. Screw the motors to the brackets (8x M3 10mm screws). Keep the orientation of the board in mind; the signal and power cables will need to reach the bottom middle of the TV.
 3. Attach the two shaft couplers to the motor shafts (2x 4-40 1/8" set screws)
 4. Place the brackets onto the bottom of the TV using adhesive. You may need to adjust their position later.
-1. Place the shell over the front of the TV so that the shaft couplers fit through the holes.
+5. Assemble the four aluminum extrusion pieces into a rectangular frame.
+5. Screw the shell pieces onto the frame.
+6. Fill the gaps between shell pieces if desired.
+7. Carefully adhere the vinyl wrap to the shell and frame.
+1. Place the shell and frame over the front of the TV so that the shaft couplers fit through the holes.
 4. Carefully press the knobs onto the shaft couplers.
 5. Mount the RPi and other electronics to the back of the TV using tape or zipties. Connect the RPi to the TV's HDMI port.
 6. Connect the signal and power wires from the Breakout Board to the Motor Boards

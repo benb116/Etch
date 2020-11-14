@@ -8,24 +8,24 @@ resolution = {'Full': (0, 0, 0),
               '1/8': (1, 1, 0),
               '1/16': (1, 1, 1)}
 
-# MODE = resolution['1/16']
+MODE = resolution['Full']
 
-pSlp = 12
-pRes = (14, 15, 18)
+pEnab = 12 # Enable pin
+pRes = (14, 15, 18) # Microstep resolution pins
 
-pStp1 = 21
-pDir1 = 20
-pStp2 = 26
-pDir2 = 19
+pStp1 = 21 # Motor 1 step pin
+pDir1 = 20 # Motor 1 direction pin
+pStp2 = 26 # Motor 2 step pin
+pDir2 = 19# Motor 2 direction pin
 
-GPIO.setup(pSlp, GPIO.OUT)
+GPIO.setup(pEnab, GPIO.OUT)
 GPIO.setup(pRes, GPIO.OUT)
 GPIO.setup(pStp1, GPIO.OUT)
 GPIO.setup(pDir1, GPIO.OUT)
 GPIO.setup(pStp2, GPIO.OUT)
 GPIO.setup(pDir2, GPIO.OUT)
 
-GPIO.output(pSlp, 0)
+GPIO.output(pEnab, 0)
 GPIO.output(pRes, 0)
 GPIO.output(pStp1, 0)
 GPIO.output(pDir1, 0)
@@ -34,20 +34,17 @@ GPIO.output(pDir2, 0)
 
 stepdelay = 0.0001
 
-def turnOn():
-    GPIO.output(pSlp, 0) # Active low
-
-def turnOff():
-    GPIO.output(pSlp, 1)
-
+# Turn the motors on or off using the enable pin
 def motorsOn(on):
-    GPIO.output(pSlp, 1-on) # Active low
+    GPIO.output(pEnab, 1-on) # Active low
 
+# Set the microstepping resolution
 def setRes(res):
     MODE = resolution[res]
     print(resolution[res])
     GPIO.output(pRes, resolution[res])
 
+# Send a step command to a motor in a direction
 def step(mn, mdir):
     # print(mn, mdir)
     msPin = pStp1 if mn == 1 else pStp2
@@ -58,6 +55,7 @@ def step(mn, mdir):
     GPIO.output(msPin, 0)
     time.sleep(stepdelay)
 
+# Return the total number of steps in one revolution based on the microstep resolution
 def stepsPerRev():
     exp = MODE[2]*4 + MODE[1]*2 + MODE[0]
     return 200 * 2**exp

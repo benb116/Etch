@@ -1,6 +1,6 @@
 # Etch
 
-Etch is an auto-drawing digital Etch a Sketch built on top of a Raspberry Pi. Stepper motors mounted under a television turn 3D printed knobs to match the drawing motion on the screen. The knobs can also be turned by hand to manually draw lines on the display.
+Etch is an auto-drawing digital Etch a Sketch built on top of a Raspberry Pi. Stepper motors mounted under a television turn 3D printed knobs to match the drawing motion on the screen. The knobs can also be turned by hand to manually draw on the display.
 
 This repository contains the following:
 
@@ -8,6 +8,8 @@ This repository contains the following:
 * Altium PCB design files and Gerber files for the custom circuit boards
 * RPi files for the server and motor/sensor integration
 * Python scripts for generating art files from images
+
+## About
 
 ### Hardware
 
@@ -20,6 +22,8 @@ The motor boards serve two functions:
 
 The motors, shaft couplers, and knobs are mounted to two brackets that are adhered to the TV. 3D printed shell pieces are connected to an aluminum extrusion frame and wrapped in red vinyl.
 
+Read more about [ME work](https://github.com/benb116/Etch/tree/master/ME) and [EE work](https://github.com/benb116/Etch/tree/master/EE).
+
 ### Software
 
 The Pi runs a Python webserver that integrates with the motors and sensors. The server communicates with a webpage running in a browser that is displayed on the screen. A websocket connection passes information back and forth about art data, timing, and user input. In AUTO Mode, the server also runs through a script of artwork to display.
@@ -30,11 +34,13 @@ Art files contain the lists of points in order of travel. They also include info
 * [PathFinder.py](https://github.com/benb116/Etch/blob/master/Art/pathfinder.py) - Identifies the path in a single line drawing
 * DIY - You can use any method that outputs a series of line segments
 
+Read more about the [Pi](https://github.com/benb116/Etch/tree/master/rPi) code and [Art](https://github.com/benb116/Etch/tree/master/Art) code.
+
 ## Further work
 
 ### Hardware
 
-- [ ] Upgrade the custom PCBs
+- [ ] Upgrade and fix the custom PCBs
 - [ ] Add user input to toggle between AUTO and MANUAL
 
 ### Software

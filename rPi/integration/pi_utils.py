@@ -1,3 +1,4 @@
+# Determine if the code is being run on a RPi
 def IsRPi():
     try:
         import RPi.GPIO as gpio

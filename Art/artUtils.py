@@ -125,7 +125,8 @@ def GrowBorder(A, sg_node_coord):
 
         B = (convolve(B, kernel, mode='constant') > 0).astype(int)
         # print('c')
-        links = np.logical_and(B, C)
+        # links = np.logical_and(B, C)
+        links = ~((B == 0) | (C == 0))
         # print('d')
         if np.sum(links) > 0:
             connected = True
