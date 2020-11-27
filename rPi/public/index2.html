@@ -22,7 +22,7 @@
         <input type="checkbox" name="fastcheck" id="myCheck" onclick="ChangeSpeed()"> Fast?
     </div>
 
-    <svg xmlns="http://www.w3.org/2000/svg" height="800" width="1200" viewBox="0 0 1200 800">
+    <svg xmlns="http://www.w3.org/2000/svg" height="700" width="1000" viewBox="0 0 1000 700">
         <path
             d=""
             stroke= "#000" 
@@ -33,6 +33,8 @@
             id="mainpath">
         </path>
     </svg>
+
+    <canvas id="c" width="1000" height="700" style="margin: auto;"></canvas>
 
 </body>
 <script src="socket.io.js"></script>
@@ -71,30 +73,6 @@
     socket.on('startTime', (startTime) => {
         setTimeout(() => { Begin(); }, startTime*1000 - Date.now());
     });
-
-    function Begin(timeSec) {
-        // Trigger a layout so styles are calculated & the browser
-        // picks up the starting position before animating
-        var length = path.getTotalLength();
-        var speedtime = length/speed;
-        path.getBoundingClientRect();
-        // Define our transition
-        path.style.transition = path.style.WebkitTransition =
-          'stroke-dashoffset '+speedtime+'s linear';
-        // Go!
-        path.style.strokeDashoffset = '0';
-    }
-
-    // When we get a tick event
-    socket.on('tick', function(mn, dir) {
-        console.log(Date.now());
-        console.log(mn, dir);
-        let newp = coord.slice();
-        newp[mn] += dir; // Determine the new point
-        DrawStep(coord, newp);
-    });
-    // Move the current location
-    socket.on('coord', function(x, y) { coord = [x, y]; });
 
     function Setup(url, speedprep) {
         // ClearScreen();
@@ -137,6 +115,48 @@
         const strjoin = strarr.join(' ');
         return strjoin.replace('L', 'M');
     }
+
+    function Begin(timeSec) {
+        // Trigger a layout so styles are calculated & the browser
+        // picks up the starting position before animating
+        var length = path.getTotalLength();
+        var speedtime = length/speed;
+        path.getBoundingClientRect();
+        // Define our transition
+        path.style.transition = path.style.WebkitTransition =
+          'stroke-dashoffset '+speedtime+'s linear';
+        // Go!
+        path.style.strokeDashoffset = '0';
+    }
+
+    // When we get a tick event
+    socket.on('tick', function(mn, dir) {
+        console.log(Date.now());
+        console.log(mn, dir);
+        let newp = coord.slice();
+        newp[mn] += dir; // Determine the new point
+        DrawStep(coord, newp);
+    });
+
+    // Draw a virtual step line segment
+    function DrawStep(p1, p2) {
+        c.beginPath();
+        c.moveTo(p1[0], p1[1]);
+        c.lineTo(p2[0], p2[1]);
+        c.stroke();
+        coord = p2; // Update latest coordinate
+    }
+
+    // Move the current location
+    socket.on('coord', function(x, y) { coord = [x, y]; });
+
+    const can = document.getElementById("c");
+    const c = can.getContext("2d");
+    c.scale(1,1);
+    c.lineWidth = 1.5;
+    c.strokeStyle = 'black';
+    let coord = [300, 100];
+
 
 </script>
 </html>

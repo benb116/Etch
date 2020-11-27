@@ -29,11 +29,13 @@
     // https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
     // https://stackoverflow.com/questions/5927284/how-can-i-make-setinterval-also-work-when-a-tab-is-inactive-in-chrome
 
+    let AUTO = false;
+
     const can = document.getElementById("c");
     const c = can.getContext("2d");
     c.scale(1,1);
     c.lineWidth = 1.5;
-    c.strokeStyle = 'gray';
+    c.strokeStyle = 'black';
 
     let timeouts = [];
     let points, dist, numsteps, stepsto, nframes, distto, dpf, totald, totalt;
@@ -73,6 +75,7 @@
     // When the server sends the drawing start time (in seconds)
     socket.on('startTime', (startTime) => {
         setTimeout(() => {
+            AUTO = true;
             Begin();
         }, startTime*1000 - Date.now());
     });
@@ -100,6 +103,7 @@
             oldanimstate = newanimstate;
             if (framecounter >= nframes) {
                 clearInterval(sceneInt);
+                AUTO = false;
             }
         }, 1000/FPS);
 
@@ -122,7 +126,9 @@
 
     // When we get a tick event
     socket.on('tick', function(mn, dir) {
+        if (AUTO) {return;}
         console.log(Date.now());
+        mn = 1 - mn;
         console.log(mn, dir);
         let newp = coord.slice();
         newp[mn] += dir/5; // Determine the new point

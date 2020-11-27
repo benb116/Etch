@@ -5,6 +5,7 @@ import time
 import threading
 from multiprocessing import Process
 import json
+import sys
 
 import logging
 log = logging.getLogger('werkzeug')
@@ -89,10 +90,8 @@ def on_clientArtReady(url):
         pxPerRev = data['pxPerRev']
 
     # Determine unix start time
-    print(len(points))
     TS = time.time() + 0.5
-    print(TS)
-    print('Init')
+    # print('Init')
     # Begin stepping at the start time
     threading.Thread(target=genThreads, args=(points, TS, pxSpeed, pxPerRev)).start()
     # Tell the client when the start time is
@@ -110,7 +109,7 @@ def InitManual():
         # motors.toggle(0)
     oldVal[0] = readAngle(0)
     oldVal[1] = readAngle(1)
-    print('InitManual')
+    # print('InitManual')
     # Repeatedly check both for changes
     while ~AUTO:
         # print('check')
@@ -130,7 +129,7 @@ def checkTick(mn):
         diff = diff + 4096 * (-1 + 2*(o > n))
     # If above some threshold for a tick
     if abs(diff) >= bitsPerStep:
-        print('tick', (mn, round(diff/bitsPerStep)))
+        # print('tick', (mn, round(diff/bitsPerStep)))
         socketio.emit('tick', (mn, round(diff/bitsPerStep)))
     oldVal[mn] = n
 
@@ -138,7 +137,12 @@ eventlet.spawn(InitManual)
 
 if __name__ == '__main__':
     print('begin')
-    # Process(target = startIO).start()
     socketio.run(app)
-    # Process(target = InitManual).start()
-    # InitManual()
+
+    try:
+        socketio.run(app)
+    except:
+        pass
+    finally:
+        motorsOn(False)
+        sys.exit(0)

@@ -127,9 +127,13 @@ def genThreads(pts, startT, pxSpeed, pxRev):
         te, th1, th2 = linInterp(a,b,c,d)
 
         # Wait until pretime to begin
-        threading.Timer( pretime - time.time(), genF(th1, th2) ).start()
+        z = threading.Timer( pretime - time.time(), genF(th1, th2) )
+        z.start()
+        z.join()
 
         pretime += te # next pretime = old pretime + time elapsed of last threads
         # Delay to reduce the # of threads active at once
         sleeptime = max((te - 0.1 + threading.active_count()*.003), 0.001)
         time.sleep(sleeptime)
+
+    motors.motorsOn(False)
