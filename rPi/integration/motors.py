@@ -1,6 +1,8 @@
 import RPi.GPIO as GPIO
+import pigpio
 import time
 GPIO.setmode(GPIO.BCM)
+PIGPIO = pigpio.pi()
 
 resolution = {'Full': (0, 0, 0),
               'Half': (1, 0, 0),
@@ -23,6 +25,9 @@ GPIO.setup(pDir1, GPIO.OUT)
 GPIO.setup(pStp2, GPIO.OUT)
 GPIO.setup(pDir2, GPIO.OUT)
 
+PIGPIO.set_mode(pStp1, pigpio.ALT5)
+PIGPIO.set_mode(pStp2, pigpio.ALT5)
+
 GPIO.output(pEnab, 0)
 GPIO.output(pRes, 0)
 GPIO.output(pStp1, 0)
@@ -30,7 +35,7 @@ GPIO.output(pDir1, 0)
 GPIO.output(pStp2, 0)
 GPIO.output(pDir2, 0)
 
-stepdelay = 0.0001
+stepdelay = 0.0002
 
 # Turn the motors on or off using the enable pin
 def motorsOn(on):
@@ -57,54 +62,19 @@ def setDirAndFreq(mn, mdir, freq):
     msPin = pStp1 if mn == 1 else pStp2
     mdPin = pDir1 if mn == 1 else pDir2
     GPIO.output(mdPin, 1 if mdir == 1 else 0)
-    pwm = GPIO.PWM(msPin, freq)
-    pwm.start(50)
+    if freq == 0:
+        PIGPIO.write(msPin, 0)
+        return
+    PIGPIO.hardware_PWM(msPin, freq, 500000)
+    # pwm = GPIO.PWM(msPin, freq)
+    # pwm.start(50)
 
 # Return the total number of steps in one revolution based on the microstep resolution
 def stepsPerRev():
     exp = MODE[2]*4 + MODE[1]*2 + MODE[0]
+    if exp == 7:
+        exp = 4
     return 200 * 2**exp
 
-MODE = resolution['Full']
-# # DISABLED = 0
-setRes('Full')
-# motorsOn(False)
-
-# try:
-  # setDirAndFreq(1, 1, 1000)
-
-# except Exception as e:
-#   print("Ctl C pressed - ending program")
-
-#   pwm.stop()                         # stop PWM
-#   GPIO.cleanup()                     # resets GPIO ports used back to input mode
-# print('222ee')
-# # turnOff()
-# # time.sleep(2)
-# turnOn()
-# # time.sleep(2)
-# turnOff()
-# # time.sleep(2)
-# # turnOn()
-# # time.sleep(2)
-# # turnOff()
-# # time.sleep(2)
-# turnOn()
-# DISABLED = 0
-# print('333')
-# for x in range(1,400):
-#     print('st')
-#     step(2, 0)
-#     time.sleep(0.01)
-# # for x in range(1,200):
-#     # print('st')
-#     # step(0, 1)
-#     # time.sleep(0.01)
-# # time.sleep(2)
-
-# # turnOff()
-# # time.sleep(200)
-
-# # # turnOn()
-# # # good practise to cleanup GPIO at some point before exit
-# GPIO.cleanup()
+MODE = resolution['1/16']
+setRes('1/16')
