@@ -8,15 +8,13 @@ resolution = {'Full': (0, 0, 0),
               '1/8': (1, 1, 0),
               '1/16': (1, 1, 1)}
 
-MODE = resolution['Full']
+pEnab = 7 # Enable pin
+pRes = (14, 15, 17) # Microstep resolution pins
 
-pEnab = 12 # Enable pin
-pRes = (14, 15, 18) # Microstep resolution pins
-
-pStp1 = 21 # Motor 1 step pin
+pStp1 = 12 # Motor 1 step pin
 pDir1 = 20 # Motor 1 direction pin
-pStp2 = 26 # Motor 2 step pin
-pDir2 = 19# Motor 2 direction pin
+pStp2 = 13 # Motor 2 step pin
+pDir2 = 6  # Motor 2 direction pin
 
 GPIO.setup(pEnab, GPIO.OUT)
 GPIO.setup(pRes, GPIO.OUT)
@@ -55,13 +53,31 @@ def step(mn, mdir):
     GPIO.output(msPin, 0)
     time.sleep(stepdelay)
 
+def setDirAndFreq(mn, mdir, freq):
+    msPin = pStp1 if mn == 1 else pStp2
+    mdPin = pDir1 if mn == 1 else pDir2
+    GPIO.output(mdPin, 1 if mdir == 1 else 0)
+    pwm = GPIO.PWM(msPin, freq)
+    pwm.start(50)
+
 # Return the total number of steps in one revolution based on the microstep resolution
 def stepsPerRev():
     exp = MODE[2]*4 + MODE[1]*2 + MODE[0]
     return 200 * 2**exp
 
+MODE = resolution['Full']
 # # DISABLED = 0
-# setRes('1/4')
+setRes('Full')
+# motorsOn(False)
+
+# try:
+  # setDirAndFreq(1, 1, 1000)
+
+# except Exception as e:
+#   print("Ctl C pressed - ending program")
+
+#   pwm.stop()                         # stop PWM
+#   GPIO.cleanup()                     # resets GPIO ports used back to input mode
 # print('222ee')
 # # turnOff()
 # # time.sleep(2)

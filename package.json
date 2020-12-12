@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "ben-jsutils": "^0.4.0",
+    "simplify-path": "^1.1.0"
+  }
+}

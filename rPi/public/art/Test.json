@@ -1,7 +1,7 @@
 {
   "name": "Test",
   "pxSpeed": 50,
-  "pxPerRev": 80,
+  "pxPerRev": 100,
   "points": [
     [200, 200],
     [400, 400],

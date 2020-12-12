@@ -26,6 +26,7 @@ onboard = False
 if IsRPi():
     onboard = True
     from RPi import GPIO
+    GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BCM)
     from integration.encoder import readAngle
     from integration.motors import motorsOn
