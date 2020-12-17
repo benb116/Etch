@@ -66,8 +66,6 @@ def setDirAndFreq(mn, mdir, freq):
         PIGPIO.write(msPin, 0)
         return
     PIGPIO.hardware_PWM(msPin, freq, 500000)
-    # pwm = GPIO.PWM(msPin, freq)
-    # pwm.start(50)
 
 # Return the total number of steps in one revolution based on the microstep resolution
 def stepsPerRev():

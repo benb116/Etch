@@ -4,17 +4,14 @@ from math import sqrt
 
 from . import pi_utils
 
+pxPerRev = 80 # pixels per revolution (XY, not full vector) - REPLACED
+speed = 40 # pix per sec - REPLACED
+stepsPerRev = 200 # how many motor steps are in a revolution
 onboard = False
 if pi_utils.IsRPi():
     onboard = True
     from . import motors
-
-# motors.turnOn()
-
-stepsPerRev = motors.stepsPerRev() # Stepper motor takes in n steps to turn a full 360 deg
-print(stepsPerRev)
-pxPerRev = 80 # pixels per revolution (XY, not full vector) - REPLACED
-speed = 40 # pix per sec - REPLACED
+    stepsPerRev = motors.stepsPerRev() # Stepper motor takes in n steps to turn a full 360 deg
 
 # Returns norm of two distances
 def pythag(a, b):

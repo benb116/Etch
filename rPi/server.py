@@ -16,10 +16,13 @@ eventlet.monkey_patch()
 
 from integration.pi_utils import IsRPi
 
-def readAngle():
+def readAngle(m):
     pass
 
 def genThreads(a, b, c, d):
+    pass
+
+def motorsOn(bool):
     pass
 
 onboard = False
@@ -93,36 +96,29 @@ def on_clientArtReady(url):
     # Determine unix start time
     TS = time.time() + 0.5
     # Begin stepping at the start time
-    threading.Thread(target=genThreads, args=(points, TS, pxSpeed, pxPerRev)).start()
+    if onboard:
+        threading.Thread(target=genThreads, args=(points, TS, pxSpeed, pxPerRev)).start()
     # Tell the client when the start time is
     emit('startTime', TS);
 
 
 ## MANUAL MODE ##
-stepsPerRev = 200
-bitsPerStep = 20
-
 oldVal = [0, 0]
 
 def InitManual():
-    # if onboard:
-        # motors.toggle(0)
     oldVal[0] = readAngle(0)
     oldVal[1] = readAngle(1)
-    # print('InitManual')
-    # Repeatedly check both for changes
+    if not onboard:
+        return
+
     while ~AUTO:
-        # print('check')
         eventlet.sleep(0.01)
         checkTick(0)
         checkTick(1)
-        # print('checkEnd')
 
 def checkTick(mn):
     o = oldVal[mn]
-    # print(o)
     n = readAngle(mn)
-    # print(n)
     diff = (n - o)
     # If the diff is > half a rotation, assume it was less than half the other way
     if abs(diff) > 4096/2:
