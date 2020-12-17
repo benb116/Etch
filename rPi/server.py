@@ -92,7 +92,6 @@ def on_clientArtReady(url):
 
     # Determine unix start time
     TS = time.time() + 0.5
-    # print('Init')
     # Begin stepping at the start time
     threading.Thread(target=genThreads, args=(points, TS, pxSpeed, pxPerRev)).start()
     # Tell the client when the start time is
