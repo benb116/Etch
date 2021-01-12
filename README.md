@@ -1,3 +1,4 @@
+[![forthebadge](https://forthebadge.com/images/badges/designed-in-etch-a-sketch.svg)](https://forthebadge.com)
 # Etch
 
 Etch is an auto-drawing digital Etch a Sketch built on top of a Raspberry Pi. Stepper motors mounted under a television turn 3D printed knobs to match the drawing motion on the screen. The knobs can also be turned by hand to manually draw on the display.

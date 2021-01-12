@@ -36,8 +36,8 @@ def linInterp(x1, y1, x2, y2):
     s2 = round(r2 * stepsPerRev)
 
     # Step frequencies
-    f1 = s1 / te
-    f2 = s2 / te
+    f1 = s1 / te if te != 0 else 0
+    f2 = s2 / te if te != 0 else 0
 
     # Which direction to rotate each motor (1 or -1)
     dir1 = -1 + 2 * ((y2 - y1) < 0)

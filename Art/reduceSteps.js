@@ -10,7 +10,7 @@ const path = simplify(data.points, 1);
 data.points = path;
 console.log(data.points.length);
 
-const screensize = [1280, 700];
+const screensize = [1000, 700];
 const screenmid = [Math.round(screensize[0]/2), Math.round(screensize[1]/2)];
 
 const xy = ben.arr.transpose(data.points);

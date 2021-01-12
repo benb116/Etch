@@ -29,7 +29,7 @@ offset = np.array([0, 0, 0, 0, 100000])  # Any offsets
 edgethr = [100, 200]
 
 folder = '/Users/Ben/Desktop/Etch/'
-jpgname = 'Tsunami'
+jpgname = 'Stiller'
 im_path = os.path.join(folder, jpgname+'.jpg')
 Im = np.array(Image.open(im_path).convert('RGB'))
 Ig = rgb2gray(Im)
@@ -75,7 +75,7 @@ def main():
 
 
 def FormatFile(stopstring):
-    pretext = '{"name":"'+jpgname+'","pxSpeed":100,"pxPerRev":40,"points":'
+    pretext = '{"name":"'+jpgname+'","pxSpeed":50,"pxPerRev":200,"points":'
     return pretext+stopstring+'}'
 
 
@@ -123,8 +123,8 @@ def SliderFigure(sumImage):
 
     eax1 = fig.add_axes([0.15, 0.5, 0.2, 0.03])
     eax2 = fig.add_axes([0.15, 0.55, 0.2, 0.03])
-    e1 = Slider(eax1, 'Thr1', 0, 255, valfmt='%0.0f', valinit=edgethr[0])
-    e2 = Slider(eax2, 'Thr0', 0, 255, valfmt='%0.0f', valinit=edgethr[1])
+    e1 = Slider(eax1, 'Thr1', 0, 1000, valfmt='%0.0f', valinit=edgethr[0])
+    e2 = Slider(eax2, 'Thr0', 0, 1000, valfmt='%0.0f', valinit=edgethr[1])
     e1.on_changed(lambda x: thresh(1, x))
     e2.on_changed(lambda x: thresh(2, x))
 
@@ -310,6 +310,8 @@ def LinkDegOne(G, nnodes, dnodes):
 
     nodes_all_degree = list(G.nodes())
     all_coord = [dnodes[p] for p in nodes_all_degree]
+
+    # TODO change to lin sum assignment?
 
     for i, p in enumerate(one_coord):
         if G.degree(nnodes[p]) != 1:

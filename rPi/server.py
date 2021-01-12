@@ -133,8 +133,6 @@ eventlet.spawn(InitManual)
 
 if __name__ == '__main__':
     print('begin')
-    socketio.run(app)
-
     try:
         socketio.run(app)
     except:
