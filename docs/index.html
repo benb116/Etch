@@ -23,6 +23,14 @@
         #ctrl:hover {
             opacity: 1
         }*/
+        span {
+            color: #ab0f0f;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        span:active {
+            color: #7a0b0b;
+        }
     </style>
 </head>
 <body>
@@ -30,8 +38,9 @@
         <input type="checkbox" name="fastcheck" id="myCheck" onclick="ChangeSpeed()"> Fast?
     </div>
     
-    <div id="links" style="position: fixed; padding-top: 20px; display: inline-block;">
-        
+    <div id="Outer" style="position: fixed; padding-top: 20px; display: inline-block;">
+        Choose an image:
+        <div id="links" style="overflow: scroll;height: 100vh"></div>
     </div>
     <!-- <canvas id="c" width="5000" height="5000" style="margin: auto;"></canvas> -->
     <svg xmlns="http://www.w3.org/2000/svg" height="800" width="1200" viewBox="0 0 1200 800">
@@ -48,7 +57,7 @@
 </body>
 <script type="text/javascript" charset="utf-8">
 
-    const files = ["Tsunami", "Reddit", "Rubiks", "Elephant", "Eagles", "StPeter", "Spongebob", "Sponge", "Pisa", "David", "Mona", "Love", "Eagle2", "Eagle", "Rushmore", "Chadwick", "Dali", "Cubes", "Map", "Jobs", "Liberty3", "Abe", "Phanatic", "Loonie", "Albert", "Adam3", "Shuttle", "Buzz", "Adam2", "Jordan", "IwoJima", "Flag", "Flag2", "Girl", "Carson", "Gritty", "BF", "Nike", "Tesla", "Sam", "Pipe", "Audrey", "Eiffel", "Taj", "Sweet", "Steve", "Mapold", "Knot", "Emma2", "Sweet2", "Etch", "Emma", "earth", "Boxes", "Mario2", "Homer", "Mickey", "Ghostbusters", "Peter", "CircleSpiral", "Mario", "Bird", "Wolf", "Deer", "Brain", "Batman", "Umbrella", "Phillies", "NASA", "Apple"];
+    const files = ["Tsunami", "Reddit", "Rubiks", "Eagles", "StPeter", "Sponge", "Pisa", "David", "Mona", "Love", "Eagle2", "Eagle", "Rushmore", "Chadwick", "Dali", "Cubes", "Map", "Jobs", "Liberty3", "Abe", "Phanatic", "Loonie", "Albert", "Adam3", "Shuttle", "Buzz", "Adam2", "Jordan", "IwoJima", "Flag", "Flag2", "Girl", "Carson", "Gritty", "BF", "Nike", "Tesla", "Sam", "Pipe", "Audrey", "Eiffel", "Taj", "Sweet", "Steve", "Mapold", "Knot", "Emma2", "Sweet2", "Etch", "Emma", "earth", "Boxes", "Mario2", "Homer", "Mickey", "Ghostbusters", "Peter", "CircleSpiral", "Mario", "Bird", "Wolf", "Deer", "Brain", "Batman", "Umbrella", "Phillies", "NASA", "Apple"];
     const thediv = document.getElementById('links');
     files.forEach((file, i) => {
         console.log(file);
@@ -65,7 +74,7 @@
     function search(ele) {
         ele = files[ele];
         console.log(ele);
-        setTimeout(function() { Setup('https://raw.githubusercontent.com/benb116/Etch/master/docs/art/'+ele+'.json', speed); }, 1000);
+        Setup('https://raw.githubusercontent.com/benb116/Etch/master/docs/art/'+ele+'.json', speed);
     }
 
     function ChangeSpeed() {
