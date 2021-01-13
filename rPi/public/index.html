@@ -44,13 +44,22 @@
     let speed = 50; // px per sec
     const BIAS = 50; // Client has slight constant lag. Increase to make client earlier
     let arturl = '';
-    let AUTO = false;
+    let AUTO = false; // mode
+
+    const can = document.getElementById("c");
+    const c = can.getContext("2d");
+    c.scale(1,1);
+    c.lineWidth = 1.5;
+    c.strokeStyle = 'black';
+
+    let coord = [200, 200]; // Current coordinate of cursor in manual mode
 
     var socket = io.connect('http://localhost:5000');
     socket.on('connect', function() {
         console.log('Connected');
     });
 
+    // When a filename is entered into the text box, begin setup
     function search(ele) {
         if(event.key === 'Enter') {
             setTimeout(function() { Setup('/art/'+ele.value+'.json', speed); }, 1000);
@@ -58,6 +67,7 @@
         }
     }
 
+    // switch between slow and fast
     function ChangeSpeed() {
         var checkBox = document.getElementById("myCheck");
         console.log(checkBox);
@@ -72,10 +82,12 @@
     // When the server sends a link to a new art file
     socket.on('link', Setup);
     // When the server sends the drawing start time (in seconds)
+    // Delay until the timestamp in order to sync with the server
     socket.on('startTime', (startTime) => {
         setTimeout(() => { Begin(); }, startTime*1000 - Date.now());
     });
 
+    // Set up the SVG path and precalculate values
     function Setup(url, speedprep) {
         // ClearScreen();
         console.log('new link', url);
@@ -106,20 +118,21 @@
             
 
             console.log('Time (min):', speedtime/60);
-            setTimeout(function() {
-                AUTO = false;
-            }, speedtime*1000+1000);
+
+            // Ready for the server
             socket.emit('clientArtReady', url);
         })
         .catch(console.log);
     }
 
+    // Format the array of points to be put into an SVG path
     function genPath(pts) {
         const strarr = pts.map(pt => 'L ' + pt.join(' ') + ' ');
         const strjoin = strarr.join(' ');
         return strjoin.replace('L', 'M');
     }
 
+    // Trigger the animation
     function Begin(timeSec) {
         // Trigger a layout so styles are calculated & the browser
         // picks up the starting position before animating
@@ -131,9 +144,15 @@
           'stroke-dashoffset '+speedtime+'s linear';
         // Go!
         path.style.strokeDashoffset = '0';
+
+        setTimeout(function() {
+            // Reset to false at the end to let it keep drawing manually
+            AUTO = false;
+            coord = points[points.length-1];
+        }, speedtime*1000+1000);
     }
 
-    // When we get a tick event
+    // When we get a tick event in manual mode
     socket.on('tick', function(mn, dir) {
         if (AUTO) {return;}
         console.log(Date.now());
@@ -154,14 +173,6 @@
 
     // Move the current location
     socket.on('coord', function(x, y) { coord = [x, y]; });
-
-    const can = document.getElementById("c");
-    const c = can.getContext("2d");
-    c.scale(1,1);
-    c.lineWidth = 1.5;
-    c.strokeStyle = 'black';
-    let coord = [200, 200];
-
 
 </script>
 </html>

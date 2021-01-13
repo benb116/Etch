@@ -17,7 +17,7 @@ if pi_utils.IsRPi():
 def pythag(a, b):
     return sqrt(a*a + b*b)
 
-# Returns two threads that generate steps to follow a line between (x1, y1) and (x2, y2)
+# Returns two threads that generate PWMs to follow a line between (x1, y1) and (x2, y2)
 # Also returns the time it will take to move that distance (for use in delaying thread starts)
 def linInterp(x1, y1, x2, y2):
 
@@ -84,7 +84,7 @@ def genThreads(pts, startT, pxSpeed, pxRev):
         z.join()
 
         pretime += te # next pretime = old pretime + time elapsed of last threads
-        # Delay to reduce the # of threads active at once
+        # Delay to reduce the # of threads active at once and save memory
         sleeptime = max((te - 0.1 + threading.active_count()*.003), 0.001)
         time.sleep(sleeptime)
 

@@ -3,13 +3,15 @@ from scipy.ndimage import convolve, gaussian_filter
 from scipy.spatial import distance_matrix
 import networkx as nx
 
+# Collection of utility functions for image processing
 
+# Convert RGB matrix to M x N x 1 grayscale matrix
 def rgb2gray(I_rgb):
     r, g, b = I_rgb[:, :, 0], I_rgb[:, :, 1], I_rgb[:, :, 2]
     I_gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
     return I_gray
 
-
+# Make all elements in a matrix on of N values, whichever is closest
 def bin(Ig, ints):
     nI = Ig.flatten()
 
@@ -18,27 +20,27 @@ def bin(Ig, ints):
     sI = ints[d].reshape(np.shape(Ig))
     return sI
 
-
+# Gausian blur an image
 def blur(line):
     kernel = np.ones((5, 5))
     c = convolve(line.astype(int), kernel, mode='nearest')
-    # c = c / 25
     return c / 25
 
-
+# Thin out blocks and large sections
+# If any element has 3 or more "1" neighbors, make it 0
 def thinOut(line):
     kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
     c = convolve(line, kernel, mode='constant')
     return np.multiply((c < 3), line) > 0
 
-
+# Any standalone pixels (no neighbors) are removed
 def despeck(line):
     kernel = np.ones((5, 5))
     kernel[2, 2] = 0
     c = convolve(line, kernel, mode='constant')
     return np.multiply((c > 0), line) > 0
 
-
+# Given a boolean matrix, return (m, n) coordinates of all points
 def getCities(cmap):
     xmax, ymax = cmap.shape
     x = np.arange(0, xmax)
@@ -53,21 +55,22 @@ def getCities(cmap):
 def pythag(a, b):
     return np.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
 
-
+# In a graph, return all nodes with degree 1
 def n1deg(T):
     return [v for v, d2 in T.degree() if d2 == 1]
 
-
+# In a graph, return all nodes with odd degree
 def nOdeg(T):
     return [v for v, d2 in T.degree() if d2 % 2 == 1]
 
-
+# Find all points that have a neighbor in a specific position
+# And add an edge between those two points
 # ori
 # 1 2 3
-# 4   6
+# 4 X 6
 # 7 8 9
 def NeiEdge(G, im, ori):
-    # Look for pixels with pixels above them in correct direction
+    # Look for pixels with pixels around them in correct direction
     # Convolve to get pixels that match that criterion
     kernel = np.zeros(9)
     kernel[ori-1] = 1
@@ -81,7 +84,7 @@ def NeiEdge(G, im, ori):
     if ori % 2 == 1 and len(list(G.nodes())) > 0:
         cities = [p for p in cities if (G.degree(p) == 1)]
 
-    # Their neighbors are below them (and left or right)
+    # Their neighbors are above/below them (and left or right)
     nextCitiesX = np.array([x[0] for x in cities]) - int((ori-1) % 3 - 1)
     nextCitiesY = np.array([x[1] for x in cities]) - int(ori // 3.3 - 1)
     nextCities = list(zip(nextCitiesX, nextCitiesY))
@@ -93,6 +96,7 @@ def NeiEdge(G, im, ori):
 
 
 # Given a list of node numbers, return a bool map
+# Kind of the opposite of getCities
 def NodeMap(all_coord):
     maxc = np.max(all_coord).astype(int)
     A = np.zeros((maxc+1, maxc+1))
@@ -101,22 +105,28 @@ def NodeMap(all_coord):
     A[all_x, all_y] = 1
     return A
 
-
-# Find nearest component and return the edge to add
+# In a graph with many disconnected components
+# Find nearest component to a given one and return the edge to add
+# A is the full matrix
+# sg_node_coord is an array of nodes in the selected component
 def GrowBorder(A, sg_node_coord):
+
+    # Make a matrix B with only the selected component
     kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
     B = np.zeros(A.shape)
     sg_x = [x[1] for x in sg_node_coord]
     sg_y = [x[0] for x in sg_node_coord]
     B[sg_x, sg_y] = 1
+    # Make a matrix C with all but the selected component
     C = A.copy()
     C[sg_x, sg_y] = 0
     connected = False
-    # Rewrite this without loop
-    # Get matrix of distances from closest B
-    # Argmin the closest one and connect
 
-    # Rewrite to shift matrix instead of convolve
+    # TODO
+    # Rewrite this without loop?
+
+    # Iteratively "add" all points neighboring selected component to the component.
+    # If any of those points are also in C, we've made a bridge
     while not connected:
         # print('loop')
         if np.all(B == 1):

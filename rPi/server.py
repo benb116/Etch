@@ -26,6 +26,7 @@ def motorsOn(bool):
     pass
 
 onboard = False
+# Want to be able to run the server off the Pi, but local doesn't have libraries
 if IsRPi():
     onboard = True
     from RPi import GPIO
@@ -84,6 +85,7 @@ def send_art(path):
 def SendArtLink(url):
     emit('link', url)
 
+# After the frontend has downloaded and precomputed the points, it emits a "clientArtReady" message
 @socketio.on('clientArtReady')
 def on_clientArtReady(url):
     # pull file that we sent
@@ -94,6 +96,7 @@ def on_clientArtReady(url):
         pxPerRev = data['pxPerRev']
 
     # Determine unix start time
+    # The front and backends will attempt to start the drawing at the same timestamp
     TS = time.time() + 0.5
     # Begin stepping at the start time
     if onboard:
@@ -106,16 +109,17 @@ def on_clientArtReady(url):
 oldVal = [0, 0]
 
 def InitManual():
-    oldVal[0] = readAngle(0)
-    oldVal[1] = readAngle(1)
     if not onboard:
         return
+    oldVal[0] = readAngle(0)
+    oldVal[1] = readAngle(1)
 
     while ~AUTO:
         eventlet.sleep(0.01)
         checkTick(0)
         checkTick(1)
 
+# Check if a motor position has changed
 def checkTick(mn):
     o = oldVal[mn]
     n = readAngle(mn)
@@ -125,9 +129,9 @@ def checkTick(mn):
         diff = diff + 4096 * (-1 + 2*(o > n))
     # If above some threshold for a tick
     if abs(diff) >= bitsPerStep:
-        # print('tick', (mn, round(diff/bitsPerStep)))
+        # Emit a tick event to the frontend
         socketio.emit('tick', (mn, round(diff/bitsPerStep)))
-    oldVal[mn] = n
+        oldVal[mn] = n
 
 eventlet.spawn(InitManual)
 
@@ -138,5 +142,6 @@ if __name__ == '__main__':
     except:
         pass
     finally:
+        # Turn off motors on exit
         motorsOn(False)
         sys.exit(0)

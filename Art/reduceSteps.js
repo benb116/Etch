@@ -1,3 +1,7 @@
+// A simple JS file that does the following to a points json file:
+// "simplifies" the path (removes collinear steps)
+// Scales the points to fit on the screen
+
 const ben = require('ben-jsutils');
 const simplify = require('simplify-path');
 

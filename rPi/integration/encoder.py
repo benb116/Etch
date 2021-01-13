@@ -1,3 +1,4 @@
+# Read values from an AS5600 through a PCA9540 I2C mux
 import smbus
 asAddress = 0x36
 

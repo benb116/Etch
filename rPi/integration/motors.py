@@ -4,6 +4,7 @@ import time
 GPIO.setmode(GPIO.BCM)
 PIGPIO = pigpio.pi()
 
+# Microstepping resolution mapping to select pins hi or lo
 resolution = {'Full': (0, 0, 0),
               'Half': (1, 0, 0),
               '1/4': (0, 1, 0),
@@ -47,7 +48,7 @@ def setRes(res):
     print(resolution[res])
     GPIO.output(pRes, resolution[res])
 
-# Send a step command to a motor in a direction
+# Send a single step command to a motor in a direction
 def step(mn, mdir):
     # print(mn, mdir)
     msPin = pStp1 if mn == 1 else pStp2
@@ -58,6 +59,7 @@ def step(mn, mdir):
     GPIO.output(msPin, 0)
     time.sleep(stepdelay)
 
+# Set up PWM at 50% duty and a certain direction and frequency
 def setDirAndFreq(mn, mdir, freq):
     msPin = pStp1 if mn == 1 else pStp2
     mdPin = pDir1 if mn == 1 else pDir2
@@ -67,7 +69,7 @@ def setDirAndFreq(mn, mdir, freq):
         return
     PIGPIO.hardware_PWM(msPin, freq, 500000)
 
-# Return the total number of steps in one revolution based on the microstep resolution
+# Return the total number of steps in one revolution based on the current microstep resolution
 def stepsPerRev():
     exp = MODE[2]*4 + MODE[1]*2 + MODE[0]
     if exp == 7:

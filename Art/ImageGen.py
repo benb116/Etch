@@ -28,6 +28,7 @@ offset = np.array([0, 0, 0, 0, 100000])  # Any offsets
 
 edgethr = [100, 200]
 
+# Pull the image
 folder = '/Users/Ben/Desktop/Etch/'
 jpgname = 'Stiller'
 im_path = os.path.join(folder, jpgname+'.jpg')
@@ -44,9 +45,8 @@ hatchedgim = [[] for i in ints]
 
 
 def main():
-    global Ig, blurred, thresh  # Find a better way than global vars
+    global Ig, blurred, thresh  # TODO Find a better way than global vars
 
-    # Ig = rgb2gray(Im)
     blurred = blur(Ig)  # Smooth out any small specks
     # Build up a matrix from various bins and operations
     sumImage = Update(0, 0, 0, 0, 1)  # Edge detection
@@ -167,21 +167,27 @@ def Update(nint, sp, ori, off, edge):
         # edIm = updEdge(Ig, 100000)
         print('Link edge detection')
         canedges = ConnectCanny(edIm)
+
     if nint:
         print('Bin images')
         global binIm
         binIm = bin(blurred, ints)
+
     if sp or ori or off:
         print('Build hatch', sp, ori, off)
         global alledges, hatchedgim
         valid = (int(sp == 0) + int(ori == 0) + int(off == 0))
         if valid != 2:
             print('hmmm')
+        # Which bin are we hatching?
         s = sp + ori + off - 1
+        # Build the full matrix hatch
         h = buildHatch(binIm.shape, orientation[s], spacing[s], offset[s])
+        # Boolean mask with bin matrix
         mh = (h & (binIm <= ints[s]))
         # plt.imshow(1-mh, cmap='gray', vmin=0, vmax=1)
         # plt.show()
+        # Add edges to the graph
         alledges[s] = createDiagEdges(mh, orientation[s])
         hatchedgim[s] = mh > 0
 
