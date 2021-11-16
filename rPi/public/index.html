@@ -55,9 +55,6 @@
     let coord = [200, 200]; // Current coordinate of cursor in manual mode
 
     var socket = io.connect('http://localhost:5000');
-    socket.on('connect', function() {
-        console.log('Connected');
-    });
 
     // When a filename is entered into the text box, begin setup
     function search(ele) {
@@ -116,11 +113,12 @@
             path.style.strokeDasharray = length + ' ' + length;
             path.style.strokeDashoffset = length;
             
+            Begin();
 
             console.log('Time (min):', speedtime/60);
 
             // Ready for the server
-            socket.emit('clientArtReady', url);
+            // socket.emit('clientArtReady', url);
         })
         .catch(console.log);
     }

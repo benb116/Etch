@@ -5,11 +5,13 @@ import networkx as nx
 
 # Collection of utility functions for image processing
 
+
 # Convert RGB matrix to M x N x 1 grayscale matrix
 def rgb2gray(I_rgb):
     r, g, b = I_rgb[:, :, 0], I_rgb[:, :, 1], I_rgb[:, :, 2]
     I_gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
     return I_gray
+
 
 # Make all elements in a matrix on of N values, whichever is closest
 def bin(Ig, ints):
@@ -20,11 +22,13 @@ def bin(Ig, ints):
     sI = ints[d].reshape(np.shape(Ig))
     return sI
 
+
 # Gausian blur an image
 def blur(line):
     kernel = np.ones((5, 5))
     c = convolve(line.astype(int), kernel, mode='nearest')
     return c / 25
+
 
 # Thin out blocks and large sections
 # If any element has 3 or more "1" neighbors, make it 0
@@ -33,12 +37,14 @@ def thinOut(line):
     c = convolve(line, kernel, mode='constant')
     return np.multiply((c < 3), line) > 0
 
+
 # Any standalone pixels (no neighbors) are removed
 def despeck(line):
     kernel = np.ones((5, 5))
     kernel[2, 2] = 0
     c = convolve(line, kernel, mode='constant')
     return np.multiply((c > 0), line) > 0
+
 
 # Given a boolean matrix, return (m, n) coordinates of all points
 def getCities(cmap):
@@ -55,13 +61,16 @@ def getCities(cmap):
 def pythag(a, b):
     return np.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
 
+
 # In a graph, return all nodes with degree 1
 def n1deg(T):
     return [v for v, d2 in T.degree() if d2 == 1]
 
+
 # In a graph, return all nodes with odd degree
 def nOdeg(T):
     return [v for v, d2 in T.degree() if d2 % 2 == 1]
+
 
 # Find all points that have a neighbor in a specific position
 # And add an edge between those two points
@@ -104,6 +113,7 @@ def NodeMap(all_coord):
     all_y = [y[0] for y in all_coord]
     A[all_x, all_y] = 1
     return A
+
 
 # In a graph with many disconnected components
 # Find nearest component to a given one and return the edge to add
