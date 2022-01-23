@@ -422,17 +422,18 @@ def LinkDegOne(G, nnodes, dnodes):
     nodes_all_degree = list(G.nodes())
     all_coord = [dnodes[p] for p in nodes_all_degree]
 
+    dm = distance_matrix(one_coord, all_coord)
+    np.fill_diagonal(dm, 1000000)
     for i, p in enumerate(one_coord):
         # If no longer odd, skip
         if G.degree(nnodes[p]) != 1:
             continue
 
         # Get distances to all other nodes
-        ld = distance_matrix([p], all_coord)
-        ld[0, nnodes[p]] = 100000
+        ld = dm[i,:]
         # Find closest and connect
         nei = ld.argmin()
-        G.add_edge(nnodes[p], nnodes[all_coord[nei]], weight=ld[0, nei])
+        G.add_edge(nnodes[p], nnodes[all_coord[nei]], weight=ld[nei])
 
     return G
 
@@ -445,18 +446,19 @@ def LinkDegOdd(G, nnodes, dnodes):
     nodes_odd_degree = nOdeg(G)
     odd_coord = [dnodes[p] for p in nodes_odd_degree]
 
+    dm = distance_matrix(odd_coord, odd_coord)
+    dm[dm==0] = 100000
     for i, p in enumerate(odd_coord):
         if G.degree(nnodes[p]) % 2 != 1:
             continue
 
         # Get distances to all other odd nodes
-        ld = distance_matrix([p], odd_coord)
-        ld[0, i] = 100000
+        ld = dm[i,:]
         # Find closest
         nei = ld.argmin()
         # If shorter than some threshold, connect
-        if ld[0, nei] < distance_threshold:
-            G.add_edge(nnodes[p], nnodes[odd_coord[nei]], weight=ld[0, nei])
+        if ld[nei] < distance_threshold:
+            G.add_edge(nnodes[p], nnodes[odd_coord[nei]], weight=ld[nei])
 
     return G
 
