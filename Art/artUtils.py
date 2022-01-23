@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.ndimage import convolve, gaussian_filter
 from scipy.spatial import distance_matrix
-import networkx as nx
+import time
 
 # Collection of utility functions for image processing
 
@@ -123,9 +123,14 @@ def GrowBorder(A, sg_node_coord):
 
     # Make a matrix B with only the selected component
     kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
+    (m,n) = A.shape
     B = np.zeros(A.shape)
     sg_x = [x[1] for x in sg_node_coord]
     sg_y = [x[0] for x in sg_node_coord]
+    minx = np.clip(np.min(sg_x)-1, 0, m)
+    maxx = np.clip(np.max(sg_x)+2, 0, m)
+    miny = np.clip(np.min(sg_y)-1, 0, n)
+    maxy = np.clip(np.max(sg_y)+2, 0, n)
     B[sg_x, sg_y] = 1
     # Make a matrix C with all but the selected component
     C = A.copy()
@@ -143,12 +148,18 @@ def GrowBorder(A, sg_node_coord):
             connected = True
             break
 
-        B = (convolve(B, kernel, mode='constant') > 0).astype(int)
+        Bwindow = B[minx:maxx, miny:maxy]
+        B[minx:maxx, miny:maxy]= (convolve(Bwindow, kernel, mode='constant') > 0).astype(int)
         # print('c')
         # links = np.logical_and(B, C)
         links = ~((B == 0) | (C == 0))
+
+        minx = np.clip(minx-1, 0, m)
+        maxx = np.clip(maxx+1, 0, m)
+        miny = np.clip(miny-1, 0, n)
+        maxy = np.clip(maxy+1, 0, n)
         # print('d')
-        if np.sum(links) > 0:
+        if np.any(links):
             connected = True
             linkcoord = getCities(links)
             ld = distance_matrix(sg_node_coord, linkcoord)

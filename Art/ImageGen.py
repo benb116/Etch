@@ -12,16 +12,14 @@ from artUtils import *
 import networkx as nx
 import itertools
 import pandas as pd
-from scipy.optimize import linear_sum_assignment
 from scipy.spatial import distance_matrix
-from scipy.ndimage import convolve
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider, TextBox, CheckButtons
+from matplotlib.widgets import Slider, TextBox
 import numpy as np
 import sys
 import os
 from PIL import Image
-
+print('loaded')
 # If interactive, show GUI for parameter tuning
 # Also show progress after each step
 interactive = (len(sys.argv) > 1)
