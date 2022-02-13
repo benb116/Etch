@@ -1,8 +1,6 @@
 # import the necessary packages
-import glob
 import cv2
 import os
-import numpy as np
 import matplotlib.pyplot as plt
 
 from artUtils import *

@@ -1,7 +1,6 @@
 import numpy as np
-from scipy.ndimage import convolve, gaussian_filter
+from scipy.ndimage import convolve
 from scipy.spatial import distance_matrix
-import time
 
 # Collection of utility functions for image processing
 
@@ -137,9 +136,6 @@ def GrowBorder(A, sg_node_coord):
     C[sg_x, sg_y] = 0
     connected = False
 
-    # TODO
-    # Rewrite this without loop?
-
     # Iteratively "add" all points neighboring selected component to the component.
     # If any of those points are also in C, we've made a bridge
     while not connected:
@@ -148,12 +144,14 @@ def GrowBorder(A, sg_node_coord):
             connected = True
             break
 
+        # Convolve the kernel to increase the border
+        # Don't need to convolve the entire matrix, only the area right around the subgraph
         Bwindow = B[minx:maxx, miny:maxy]
         B[minx:maxx, miny:maxy]= (convolve(Bwindow, kernel, mode='constant') > 0).astype(int)
-        # print('c')
-        # links = np.logical_and(B, C)
-        links = ~((B == 0) | (C == 0))
+        # Find cells where the border increased into a new subgraph (in B and in C)
+        links = (B == 1) & (C == 1)
 
+        # Increase bounding box size for next round if necessary
         minx = np.clip(minx-1, 0, m)
         maxx = np.clip(maxx+1, 0, m)
         miny = np.clip(miny-1, 0, n)

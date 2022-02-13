@@ -5,10 +5,11 @@
 # See main() for setup
 # See genGraph() for graph algorithm
 
-from canny2 import updEdge
 from canny3 import extractEdges
 from artUtils import *
 
+import time
+t = time.perf_counter()
 import networkx as nx
 import itertools
 import pandas as pd
@@ -20,6 +21,8 @@ import sys
 import os
 from PIL import Image
 print('loaded')
+print(time.perf_counter()-t)
+t = time.perf_counter()
 # If interactive, show GUI for parameter tuning
 # Also show progress after each step
 interactive = (len(sys.argv) > 1)
@@ -31,7 +34,6 @@ ints = np.array([30, 30, 60, 90, 255])  # Brightness cutoffs
 spacing = np.array([7, 7, 13, 15, 20])  # Corresponding line densities
 orientation = np.array([-1, 1, -1, 1, -1])  # Direction (not all the same way)
 offset = np.array([0, 0, 0, 0, 100000])  # Any offsets
-
 # Edge detection parameters
 edgethr = [100, 200]
 
@@ -214,6 +216,8 @@ def Update(nint, sp, ori, off, edge):
 
 # Do the graph theory work
 def genGraph(es):
+    t = time.perf_counter()
+
     G = nx.MultiGraph()
     # Collect all edges from all operations
     alledges = [item for sublist in es for item in sublist] + canedges
@@ -233,18 +237,21 @@ def genGraph(es):
     nwedges = list(map(lambda e: (nnodes[e[0]], nnodes[e[1]], e[2]), wedges))
     G.add_weighted_edges_from(nwedges)
 
+    print(time.perf_counter()-t)
+    t = time.perf_counter()
     # Need an eulerian circuit
     # One component, no odd degree nodes
     # Where do we stand
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
     print("Num components", len(list(nx.connected_components(G))))
-    PlotGraph(G, ndnodes)
 
     # Connect any separate subgraphs into one
     # Will add edges
     print('Connect Subgraphs')
     G = ConnectSubgraphs(G, nnodes, dnodes)
+    print(time.perf_counter()-t)
+    t = time.perf_counter()
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
     print("Num components", len(list(nx.connected_components(G))))
@@ -253,13 +260,18 @@ def genGraph(es):
     # Add a parallel edge to any d1 node with an odd node as a neighbor
     print('EasyLinkOne')
     G = EasyLinkOne(G)
+    print(time.perf_counter()-t)
+    t = time.perf_counter()
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
+    PlotGraph(G, ndnodes)
 
     # # Link remaining d1 nodes to a good neighbor
     # # This may create new edges
     print('LinkDegOne')
     G = LinkDegOne(G, nnodes, dnodes)
+    print(time.perf_counter()-t)
+    t = time.perf_counter()
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
     PlotGraph(G, ndnodes)
@@ -267,6 +279,8 @@ def genGraph(es):
     # Add a parallel edge to any odd node with an odd node as a neighbor
     print('EasyLinkOdd')
     G = EasyLinkOdd(G)
+    print(time.perf_counter()-t)
+    t = time.perf_counter()
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
     PlotGraph(G, ndnodes)
@@ -275,11 +289,15 @@ def genGraph(es):
     # This may create new edges
     print('LinkDegOdd')
     G = LinkDegOdd(G, nnodes, dnodes)
+    print(time.perf_counter()-t)
+    t = time.perf_counter()
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
     while len(nOdeg(G)) > 400:
         print('LinkDegOdd 2')
         G = LinkDegOdd(G, nnodes, dnodes)
+        print(time.perf_counter()-t)
+        t = time.perf_counter()
         print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
         print("Num One", len(n1deg(G)))  # Number of degree one nodes
 
@@ -288,6 +306,8 @@ def genGraph(es):
     # Match remaining odd nodes with longer parallel paths
     print('FinalOdd')
     G = PathFinder(G, dnodes)
+    print(time.perf_counter()-t)
+    t = time.perf_counter()
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
     # nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
@@ -296,6 +316,8 @@ def genGraph(es):
     # plt.show()
 
     print('Begin Eulerian')
+    print(time.perf_counter()-t)
+    t = time.perf_counter()
     stops = [list(dnodes[u]) for u, v in nx.eulerian_circuit(G)]
     stops = np.array(stops)
     return G, stops
@@ -346,6 +368,7 @@ def createDiagEdges(mask, ori):
 # Connect separate subgraphs into one big subgraph
 # Try to add the shortest edges possible to do this
 def ConnectSubgraphs(G, nnodes, dnodes):
+    t = time.perf_counter()
     sub_graphs = list(nx.connected_components(G))
     all_coord = [dnodes[x] for x in list(G.nodes())]
     A = NodeMap(all_coord)
@@ -373,6 +396,7 @@ def ConnectSubgraphs(G, nnodes, dnodes):
 
         sub_graphs = list(nx.connected_components(G))
 
+    print(time.perf_counter()-t)
     return G
 
 
