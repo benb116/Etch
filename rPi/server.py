@@ -54,9 +54,9 @@ def root():
     return app.send_static_file('index.html')
 
 
-@app.route('/index2.html')
+@app.route('/canvas.html')
 def root2():
-    return app.send_static_file('index2.html')
+    return app.send_static_file('canvas.html')
 
 
 @app.route('/socket.io.js')

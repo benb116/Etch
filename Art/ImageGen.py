@@ -4,7 +4,7 @@
 
 # See main() for setup
 # See genGraph() for graph algorithm
-
+print('start')
 from canny3 import extractEdges
 from artUtils import *
 
@@ -76,7 +76,7 @@ def main():
     # and start connecting edges as necessary
     # This outputs the waypoints of the circuit
     print('Start graph work')
-    G, stops = genGraph(alledges)
+    stops = genGraph(alledges)
 
     print('Write to file')
     np.set_printoptions(threshold=sys.maxsize)
@@ -139,8 +139,8 @@ def SliderFigure(sumImage):
 
     eax1 = fig.add_axes([0.15, 0.5, 0.2, 0.03])
     eax2 = fig.add_axes([0.15, 0.55, 0.2, 0.03])
-    e1 = Slider(eax1, 'Thr1', 0, 1000, valfmt='%0.0f', valinit=edgethr[0])
-    e2 = Slider(eax2, 'Thr0', 0, 1000, valfmt='%0.0f', valinit=edgethr[1])
+    e1 = Slider(eax1, 'Thr1', 0, 300, valfmt='%0.0f', valinit=edgethr[0])
+    e2 = Slider(eax2, 'Thr0', 0, 300, valfmt='%0.0f', valinit=edgethr[1])
     e1.on_changed(lambda x: thresh(1, x))
     e2.on_changed(lambda x: thresh(2, x))
 
@@ -293,8 +293,10 @@ def genGraph(es):
     t = time.perf_counter()
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
+    counter = 1
     while len(nOdeg(G)) > 400:
-        print('LinkDegOdd 2')
+        counter += 1
+        print('LinkDegOdd '+str(counter))
         G = LinkDegOdd(G, nnodes, dnodes)
         print(time.perf_counter()-t)
         t = time.perf_counter()
@@ -318,9 +320,9 @@ def genGraph(es):
     print('Begin Eulerian')
     print(time.perf_counter()-t)
     t = time.perf_counter()
-    stops = [list(dnodes[u]) for u, v in nx.eulerian_circuit(G)]
+    stops = [list(dnodes[u[0]]) for u in nx.eulerian_circuit(G)]
     stops = np.array(stops)
-    return G, stops
+    return stops
 
 
 # Edge detection returns a binary image of edge points
@@ -380,7 +382,8 @@ def ConnectSubgraphs(G, nnodes, dnodes):
     while len(sub_graphs) > 1:
         # For each subgraph, connect it to the closest node in a different subgraph
         for i, sg in enumerate(sub_graphs):
-            print(i)
+            if i % 10 == 0:
+                print(i)
             if i == len(sub_graphs) - 1:
                 continue
             # Get all nodes connected to first node in the subgraph

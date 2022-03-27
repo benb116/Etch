@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas</title>
+    <style type="text/css">
+        body {
+            background-color: #d1d1d1;
+            margin: 0;
+            overflow: hidden;
+        }
+        #ctrl {
+            opacity: 0
+        }
+        #ctrl:hover {
+            opacity: 1
+        }
+    </style>
+</head>
+<body>
+    <div id="ctrl" style="position: fixed;z-index: 10">
+        <input type="text" name="artname" onkeydown="search(this)" style="" autofocus />
+        <input type="checkbox" name="fastcheck" id="myCheck" onclick="ChangeSpeed()"> Fast?
+    </div>
+    <canvas id="c" width="1000" height="700" style="margin: auto;"></canvas>
+</body>
+<script src="socket.io.js"></script>
+<script type="text/javascript" charset="utf-8">
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+    // https://stackoverflow.com/questions/5927284/how-can-i-make-setinterval-also-work-when-a-tab-is-inactive-in-chrome
+
+    let AUTO = false;
+
+    const can = document.getElementById("c");
+    const c = can.getContext("2d");
+    c.scale(1,1);
+    c.lineWidth = .5;
+    c.strokeStyle = 'black';
+
+    let timeouts = [];
+    let points, dist, numsteps, stepsto, nframes, distto, dpf, totald, totalt;
+    let coord = [300, 100];
+    let speed = 50; // px per sec
+    let FPS = 60;
+    let stepPerPix = FPS / speed; // How many virtual steps to take per pixel distance
+    const BIAS = 50; // Client has slight constant lag. Increase to make client earlier
+    let arturl = '';
+
+    var socket = io.connect('http://localhost:5000');
+    socket.on('connect', function() {
+        console.log('Connected');
+    });
+    var LINE = 1;
+    let sceneInt;
+
+    function search(ele) {
+        if(event.key === 'Enter') {
+            setTimeout(function() { Setup('/art/'+ele.value+'.json', speed); }, 1000);
+        }
+    }
+
+    function ChangeSpeed() {
+        var checkBox = document.getElementById("myCheck");
+        console.log(checkBox);
+        if (checkBox.checked) {
+            speed = 1000;
+        } else {
+            speed = 50;
+        }
+        Setup(arturl, speed);
+    }
+
+    // When the server sends a link to a new art file
+    socket.on('link', Setup);
+    // When the server sends the drawing start time (in seconds)
+    socket.on('startTime', (startTime) => {
+        setTimeout(() => {
+            AUTO = true;
+            Begin();
+        }, startTime*1000 - Date.now());
+    });
+
+    function Begin(timeSec) {
+        const dpf = speed / FPS;
+        let framecounter = 0;
+        let curdist = 0;
+        let oldanimstate = getstate(dist, curdist);
+        sceneInt = setInterval(() => {
+            framecounter++;
+            curdist = framecounter * dpf;
+            const newanimstate = getstate(dist, curdist);
+            const animdiff = newanimstate.map((e,i) => e - oldanimstate[i]);
+            for (var i = 0; i < newanimstate.length; i++) {
+                const fn = newanimstate[i];
+                const fo = oldanimstate[i];
+                if (fo === 0 && fn === 0) { continue;}
+                if (fo === 1) { continue;}
+                const p1 = [points[i][0] + (points[i+1][0] - points[i][0]) * fo, points[i][1] + (points[i+1][1] - points[i][1]) * fo];
+                const p2 = [points[i][0] + (points[i+1][0] - points[i][0]) * fn, points[i][1] + (points[i+1][1] - points[i][1]) * fn];
+                console.log('DRAW', p1, p2);
+                DrawStep(p1, p2);
+            }
+            oldanimstate = newanimstate;
+            if (framecounter >= nframes) {
+                clearInterval(sceneInt);
+                AUTO = false;
+            }
+        }, 1000/FPS);
+
+        function getstate(thedist, curd) {
+            let state = [];
+            thedist.reduce((acc, cur, ind, arr) => {
+                if (acc >= cur) {
+                    acc -= cur;
+                    state[ind] = 1;
+                } else {
+                    state[ind] = acc / cur;
+                    acc = 0;
+                }
+                return acc;
+            }, curd);
+            return state;
+        }
+
+    }
+
+    // When we get a tick event
+    socket.on('tick', function(mn, dir) {
+        if (AUTO) {return;}
+        console.log(Date.now());
+        mn = 1 - mn;
+        console.log(mn, dir);
+        let newp = coord.slice();
+        newp[mn] += dir/5; // Determine the new point
+        DrawStep(coord, newp);
+    });
+    // Move the current location
+    socket.on('coord', function(x, y) { coord = [x, y]; });
+
+    function Setup(url, speedprep) {
+        ClearScreen();
+        console.log('new link', url);
+        arturl = url;
+        // Download points from link
+        fetch('http://localhost:5000'+url, {cache: 'reload'})
+        .then((response) => response.json())
+        .then(function(data) {
+            // extract points and speed into global variables
+            console.log(data);
+            points = data.points;
+            speed = data.pxSpeed;
+            if (document.getElementById("myCheck").checked) {
+                speed = 10000;
+            }
+            stepPerPix = FPS / speed;
+            console.log(1000/FPS);
+            // Predraw
+            dist = diff(points);
+            totald = dist.reduce((a,b) => a += b);
+            totalt = totald / speed;
+            nframes = Math.ceil(FPS  * totalt);
+            numsteps = dist.map((d) => Math.ceil(d*stepPerPix));
+            stepsto = [];
+            numsteps.reduce(function(a,b,i) { return stepsto[i] = a+b; }, 0);
+            stepsto.unshift(0);
+            distto = [];
+            dist.reduce(function(a,b,i) { return distto[i] = a+b; }, 0);
+            // distto.unshift(0);
+            console.log("Time (min)", Steps2MS(stepsto[stepsto.length-1])/1000/60);
+            // Ready to draw
+            socket.emit('clientArtReady', url);
+            // Begin(Date.now() + 500, 1000);
+        })
+        .catch(console.log);
+    }
+
+    // Given a number of virtual steps, how long will it take
+    function Steps2MS(ns) { return ((ns)/stepPerPix/speed * 1000); }
+
+    // Draw a virtual step line segment
+    function DrawStep(p1, p2) {
+        c.beginPath();
+        c.moveTo(p1[0], p1[1]);
+        c.lineTo(p2[0], p2[1]);
+        c.stroke();
+        coord = p2; // Update latest coordinate
+    }
+
+    // Get successive difference between array elements
+    function diff(a) {
+        var a2 = a.slice();
+        var b = a.slice();
+        a2.shift();
+        b.pop();
+        return a2.map(function(e, i) {
+            return Math.sqrt(Math.pow(e[0] - b[i][0], 2) + Math.pow(e[1] - b[i][1], 2));
+        });
+    }
+
+    function ClearScreen() {
+        clearInterval(sceneInt);
+        c.clearRect(0, 0, 5000, 5000);
+    }
+</script>
+</html>
