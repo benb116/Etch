@@ -41,11 +41,13 @@ stepdelay = 0.0002
 # Turn the motors on or off using the enable pin
 def motorsOn(on):
     GPIO.output(pEnab, 1-on) # Active low
+    if not on:
+        setDirAndFreq(0, 0, 0)
+        setDirAndFreq(1, 0, 0)
 
 # Set the microstepping resolution
 def setRes(res):
     MODE = resolution[res]
-    print(resolution[res])
     GPIO.output(pRes, resolution[res])
 
 # Send a single step command to a motor in a direction

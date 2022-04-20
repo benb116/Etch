@@ -12,6 +12,7 @@ if pi_utils.IsRPi():
     onboard = True
     from . import motors
     stepsPerRev = motors.stepsPerRev() # Stepper motor takes in n steps to turn a full 360 deg
+    print('Steps per rev ' + str(stepsPerRev))
 
 # Returns norm of two distances
 def pythag(a, b):
@@ -36,8 +37,8 @@ def linInterp(x1, y1, x2, y2):
     s2 = round(r2 * stepsPerRev)
 
     # Step frequencies
-    f1 = s1 / te if te != 0 else 0
-    f2 = s2 / te if te != 0 else 0
+    f1 = (s1 / te) if te != 0 else 0
+    f2 = (s2 / te) if te != 0 else 0
 
     # Which direction to rotate each motor (1 or -1)
     dir1 = -1 + 2 * ((y2 - y1) < 0)
@@ -69,7 +70,6 @@ def genThreads(pts, startT, pxSpeed, pxRev):
     pxPerRev = pxRev
     speed = pxSpeed
     pretime = startT; # Updated timestamp at which the next threads will start
-
     motors.motorsOn(True)
     for i in range(len(pts) - 1):
         a = pts[i][0]

@@ -49,7 +49,7 @@
     const can = document.getElementById("c");
     const c = can.getContext("2d");
     c.scale(1,1);
-    c.lineWidth = 1.5;
+    c.lineWidth = .5;
     c.strokeStyle = 'black';
 
     let coord = [200, 200]; // Current coordinate of cursor in manual mode
@@ -113,12 +113,12 @@
             path.style.strokeDasharray = length + ' ' + length;
             path.style.strokeDashoffset = length;
             
-            Begin();
+            // Begin();
 
             console.log('Time (min):', speedtime/60);
 
             // Ready for the server
-            // socket.emit('clientArtReady', url);
+            socket.emit('clientArtReady', url);
         })
         .catch(console.log);
     }
