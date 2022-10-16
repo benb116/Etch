@@ -26,20 +26,20 @@ t = time.perf_counter()
 # If interactive, show GUI for parameter tuning
 # Also show progress after each step
 interactive = (len(sys.argv) > 1)
-# interactive = True
+interactive = True
 print(interactive)
 
 # Binning and hatching parameters
-ints = np.array([30, 30, 60, 90, 255])  # Brightness cutoffs
+ints = np.array([15, 15, 53, 116, 255])  # Brightness cutoffs
 spacing = np.array([7, 7, 13, 15, 20])  # Corresponding line densities
 orientation = np.array([-1, 1, -1, 1, -1])  # Direction (not all the same way)
 offset = np.array([0, 0, 0, 0, 100000])  # Any offsets
 # Edge detection parameters
-edgethr = [100, 200]
+edgethr = [170, 270]
 
 # Pull the image
 folder = '/Users/Ben/Desktop/Etch/'
-jpgname = 'Angry2'
+jpgname = 'im3'
 im_path = os.path.join(folder, jpgname+'.jpg')
 Im = np.array(Image.open(im_path).convert('RGB'))
 Ig = rgb2gray(Im)
@@ -139,8 +139,8 @@ def SliderFigure(sumImage):
 
     eax1 = fig.add_axes([0.15, 0.5, 0.2, 0.03])
     eax2 = fig.add_axes([0.15, 0.55, 0.2, 0.03])
-    e1 = Slider(eax1, 'Thr1', 0, 300, valfmt='%0.0f', valinit=edgethr[0])
-    e2 = Slider(eax2, 'Thr0', 0, 300, valfmt='%0.0f', valinit=edgethr[1])
+    e1 = Slider(eax1, 'Thr1', 0, 1000, valfmt='%0.0f', valinit=edgethr[0])
+    e2 = Slider(eax2, 'Thr0', 0, 1000, valfmt='%0.0f', valinit=edgethr[1])
     e1.on_changed(lambda x: thresh(1, x))
     e2.on_changed(lambda x: thresh(2, x))
 

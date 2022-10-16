@@ -118,7 +118,11 @@
             console.log('Time (min):', speedtime/60);
 
             // Ready for the server
-            socket.emit('clientArtReady', url);
+            if (!document.getElementById("myCheck").checked) {
+                socket.emit('clientArtReady', url);
+            } else {
+                Begin();
+            }
         })
         .catch(console.log);
     }
