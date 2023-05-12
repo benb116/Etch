@@ -12,7 +12,7 @@ import time
 t = time.perf_counter()
 import networkx as nx
 import itertools
-import pandas as pd
+import modin.pandas as pd
 from scipy.spatial import distance_matrix
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, TextBox
@@ -25,8 +25,9 @@ print(time.perf_counter()-t)
 t = time.perf_counter()
 # If interactive, show GUI for parameter tuning
 # Also show progress after each step
-interactive = (len(sys.argv) > 1)
 interactive = True
+if len(sys.argv) > 2:
+  interactive = False
 print(interactive)
 
 # Binning and hatching parameters
@@ -38,8 +39,8 @@ offset = np.array([0, 0, 0, 0, 100000])  # Any offsets
 edgethr = [170, 270]
 
 # Pull the image
-folder = '/Users/Ben/Desktop/Etch/'
-jpgname = 'im3'
+folder = '/Users/Ben/Desktop/Files/Etch/'
+jpgname = sys.argv[1]if 1 < len(sys.argv) else 'StPeter'
 im_path = os.path.join(folder, jpgname+'.jpg')
 Im = np.array(Image.open(im_path).convert('RGB'))
 Ig = rgb2gray(Im)
@@ -370,7 +371,6 @@ def createDiagEdges(mask, ori):
 # Connect separate subgraphs into one big subgraph
 # Try to add the shortest edges possible to do this
 def ConnectSubgraphs(G, nnodes, dnodes):
-    t = time.perf_counter()
     sub_graphs = list(nx.connected_components(G))
     all_coord = [dnodes[x] for x in list(G.nodes())]
     A = NodeMap(all_coord)
@@ -378,28 +378,25 @@ def ConnectSubgraphs(G, nnodes, dnodes):
     # More efficient way?
     # shift up and left, connect if include other, repeat if not
 
+    def add_edge(sg):
+        # Get all nodes connected to first node in the subgraph
+        sg_node_num = list(sg)
+        sg_node_coord = [dnodes[x] for x in sg_node_num]
+        # Grow the border of the subgraph and find new edges
+        return GrowBorder(A, sg_node_coord)
+
     # Repeat until there's only onesubgraph
     while len(sub_graphs) > 1:
+        print(len(sub_graphs))
         # For each subgraph, connect it to the closest node in a different subgraph
-        for i, sg in enumerate(sub_graphs):
-            if i % 10 == 0:
-                print(i)
-            if i == len(sub_graphs) - 1:
-                continue
-            # Get all nodes connected to first node in the subgraph
-            sg = nx.node_connected_component(G, list(sg)[0])
-            sg_node_num = list(sg)
-            sg_node_coord = [dnodes[x] for x in sg_node_num]
-
-            # Grow the border of the subgraph and find new edges
-            newedge = GrowBorder(A, sg_node_coord)
-            # If we found a new edge, add it to the graph
+        df = pd.Series(sub_graphs)
+        df2 = df.apply(lambda row : add_edge( row))
+        for newedge in df2:
             if newedge != None:
                 G.add_edge(nnodes[newedge[0]], nnodes[newedge[1]], weight=newedge[2])
 
         sub_graphs = list(nx.connected_components(G))
 
-    print(time.perf_counter()-t)
     return G
 
 
@@ -449,18 +446,34 @@ def LinkDegOne(G, nnodes, dnodes):
     nodes_all_degree = list(G.nodes())
     all_coord = [dnodes[p] for p in nodes_all_degree]
 
-    dm = distance_matrix(one_coord, all_coord)
-    np.fill_diagonal(dm, 1000000)
-    for i, p in enumerate(one_coord):
-        # If no longer odd, skip
-        if G.degree(nnodes[p]) != 1:
-            continue
+    # dm = distance_matrix(one_coord, all_coord)
+    # np.fill_diagonal(dm, 1000000)
+    # for i, p in enumerate(one_coord):
+    #     # If no longer one, skip
+    #     if G.degree(nnodes[p]) != 1:
+    #         continue
 
-        # Get distances to all other nodes
-        ld = dm[i,:]
-        # Find closest and connect
-        nei = ld.argmin()
-        G.add_edge(nnodes[p], nnodes[all_coord[nei]], weight=ld[nei])
+    #     # Get distances to all other nodes
+    #     ld = dm[i,:]
+    #     # Find closest and connect
+    #     nei = ld.argmin()
+    #     G.add_edge(nnodes[p], nnodes[all_coord[nei]], weight=ld[nei])
+
+    def match_deg_one(p):
+        dm = distance_matrix([dnodes[p]], all_coord)
+        dm[dm==0] = 100000
+        nei = dm.argmin()
+        return [p, nnodes[all_coord[nei]], dm[0][nei]]
+
+    df = pd.Series(nodes_one_degree)
+    df2 = df.apply(lambda row : match_deg_one(row))
+
+    for edge in df2:
+        if edge == None:
+            continue
+        [n1, n2, w] = edge
+        if G.degree(n1) == 1:
+            G.add_edge(n1, n2, weight=w)
 
     return G
 
@@ -473,19 +486,23 @@ def LinkDegOdd(G, nnodes, dnodes):
     nodes_odd_degree = nOdeg(G)
     odd_coord = [dnodes[p] for p in nodes_odd_degree]
 
-    dm = distance_matrix(odd_coord, odd_coord)
-    dm[dm==0] = 100000
-    for i, p in enumerate(odd_coord):
-        if G.degree(nnodes[p]) % 2 != 1:
-            continue
+    def match_deg_odd(p):
+        dm = distance_matrix([dnodes[p]], odd_coord)
+        dm[dm==0] = 100000
+        nei = dm.argmin()
+        if dm[0][nei] < distance_threshold:
+            return [p, nnodes[odd_coord[nei]], dm[0][nei]]
+        return None
 
-        # Get distances to all other odd nodes
-        ld = dm[i,:]
-        # Find closest
-        nei = ld.argmin()
-        # If shorter than some threshold, connect
-        if ld[nei] < distance_threshold:
-            G.add_edge(nnodes[p], nnodes[odd_coord[nei]], weight=ld[nei])
+    df = pd.Series(nodes_odd_degree)
+    df2 = df.apply(lambda row : match_deg_odd(row))
+
+    for edge in df2:
+        if edge == None:
+            continue
+        [n1, n2, w] = edge
+        if G.degree(n1) % 2 == 1:
+            G.add_edge(n1, n2, weight=w)
 
     return G
 
@@ -501,14 +518,21 @@ def PathFinder(G, dnodes):
     # Get path lengths from all odd nodes to all nodes
     # Populate a matrix
     print('Get all path lengths')
-    for t in nO:
+
+    def calc_path_lengths(n):
         # For each odd node, get distance through graph to all other nodes
         # Does it improve speed if only get distances to odd nodes?
-        length = nx.single_source_dijkstra_path_length(G, t)
+        length = nx.single_source_dijkstra_path_length(G, n)
         lk = list(length.keys())
         lv = list(length.values())
+        return [n, lk, lv]
+
+    df = pd.Series(nO)
+    df2 = df.apply(lambda row : calc_path_lengths(row))
+    for t in df2:
         # Populate distance matrix
-        A[t, lk] = lv
+        [n, lk, lv] = t
+        A[n, lk] = lv
 
     # Only look at odd to odd paths
     np.fill_diagonal(A, 1000000)  # No self loops

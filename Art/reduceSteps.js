@@ -10,18 +10,38 @@ const filepath = '../rPi/public/art/'+filename+'.json';
 let data = require(filepath);
 
 console.log(data.points.length);
-const path = simplify(data.points, 1);
+const path = simplify(data.points, 0);
 data.points = path;
 console.log(data.points.length);
 
-const screensize = [1000, 700];
+const screensize = [1500, 865];
 const screenmid = [Math.round(screensize[0]/2), Math.round(screensize[1]/2)];
 
+function getMax(arr) {
+    let len = arr.length;
+    let max = -Infinity;
+
+    while (len--) {
+        max = arr[len] > max ? arr[len] : max;
+    }
+    return max;
+}
+
+function getMin(arr) {
+    let len = arr.length;
+    let min = Infinity;
+
+    while (len--) {
+        min = arr[len] < min ? arr[len] : min;
+    }
+    return min;
+}
+
 const xy = ben.arr.transpose(data.points);
-let maxX = ben.arr.max(xy[0])[0];
-let maxY = ben.arr.max(xy[1])[0];
-let minX = ben.arr.min(xy[0])[0];
-let minY = ben.arr.min(xy[1])[0];
+let maxX = getMax(xy[0]);
+let maxY = getMax(xy[1]);
+let minX = getMin(xy[0]);
+let minY = getMin(xy[1]);
 
 console.log('maxes');
 console.log(maxX, minX);
@@ -36,10 +56,10 @@ if (big > 0) {
     xy[0] = xy[0].map(e => (e / big));
     xy[1] = xy[1].map(e => (e / big));
 }
-maxX = ben.arr.max(xy[0])[0];
-maxY = ben.arr.max(xy[1])[0];
-minX = ben.arr.min(xy[0])[0];
-minY = ben.arr.min(xy[1])[0];
+maxX = getMax(xy[0]);
+maxY = getMax(xy[1]);
+minX = getMin(xy[0]);
+minY = getMin(xy[1]);
 const avgX = Math.round((maxX + minX) / 2);
 const avgY = Math.round((maxY + minY) / 2);
 const difX = avgX - screenmid[0];

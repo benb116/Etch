@@ -4,12 +4,14 @@ import time
 GPIO.setmode(GPIO.BCM)
 PIGPIO = pigpio.pi()
 
+
 # Microstepping resolution mapping to select pins hi or lo
 resolution = {'Full': (0, 0, 0),
               'Half': (1, 0, 0),
               '1/4': (0, 1, 0),
               '1/8': (1, 1, 0),
               '1/16': (1, 1, 1)}
+MODE = resolution['1/16']
 
 pEnab = 7 # Enable pin
 pRes = (14, 15, 17) # Microstep resolution pins
@@ -78,5 +80,4 @@ def stepsPerRev():
         exp = 4
     return 200 * 2**exp
 
-MODE = resolution['1/16']
 setRes('1/16')

@@ -151,7 +151,8 @@ def checkTick(mn):
         oldVal[mn] = n
 
 
-# eventlet.spawn(InitManual)
+if IsRPi():
+    eventlet.spawn(InitManual)
 
 if __name__ == '__main__':
     print('begin')

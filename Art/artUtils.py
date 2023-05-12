@@ -12,7 +12,7 @@ def rgb2gray(I_rgb):
     return I_gray
 
 
-# Make all elements in a matrix on of N values, whichever is closest
+# Make all elements in a matrix one of N values, whichever is closest
 def bin(Ig, ints):
     nI = Ig.flatten()
 
@@ -23,26 +23,26 @@ def bin(Ig, ints):
 
 
 # Gausian blur an image
-def blur(line):
+def blur(Im):
     kernel = np.ones((5, 5))
-    c = convolve(line.astype(int), kernel, mode='nearest')
+    c = convolve(Im.astype(int), kernel, mode='nearest')
     return c / 25
 
 
 # Thin out blocks and large sections
 # If any element has 3 or more "1" neighbors, make it 0
-def thinOut(line):
+def thinOut(Im):
     kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
-    c = convolve(line, kernel, mode='constant')
-    return np.multiply((c < 3), line) > 0
+    c = convolve(Im, kernel, mode='constant')
+    return np.multiply((c < 3), Im) > 0
 
 
 # Any standalone pixels (no neighbors) are removed
-def despeck(line):
+def despeck(Im):
     kernel = np.ones((5, 5))
     kernel[2, 2] = 0
-    c = convolve(line, kernel, mode='constant')
-    return np.multiply((c > 0), line) > 0
+    c = convolve(Im, kernel, mode='constant')
+    return np.multiply((c > 0), Im) > 0
 
 
 # Given a boolean matrix, return (m, n) coordinates of all points
@@ -164,4 +164,4 @@ def GrowBorder(A, sg_node_coord):
             (z, nei) = np.unravel_index(ld.argmin(), ld.shape)
             minN = sg_node_coord[z]
             minNei = linkcoord[nei]
-            return (minN, minNei, ld[z, nei])
+            return [minN, minNei, ld[z, nei]]
