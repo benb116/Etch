@@ -40,7 +40,7 @@ edgethr = [170, 270]
 
 # Pull the image
 folder = '/Users/Ben/Desktop/Files/Etch/'
-jpgname = sys.argv[1]if 1 < len(sys.argv) else 'StPeter'
+jpgname = sys.argv[1]if 1 < len(sys.argv) else 'Rushmore'
 im_path = os.path.join(folder, jpgname+'.jpg')
 Im = np.array(Image.open(im_path).convert('RGB'))
 Ig = rgb2gray(Im)
@@ -107,11 +107,11 @@ def SliderFigure(sumImage):
     fig.subplots_adjust(left=0.45, bottom=0.35)
     ax.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
 
-    sax1 = fig.add_axes([0.15, 0.05, 0.5, 0.03])
-    sax2 = fig.add_axes([0.15, 0.10, 0.5, 0.03])
-    sax3 = fig.add_axes([0.15, 0.15, 0.5, 0.03])
-    sax4 = fig.add_axes([0.15, 0.20, 0.5, 0.03])
-    sax5 = fig.add_axes([0.15, 0.25, 0.5, 0.03])
+    sax1 = fig.add_axes([0.15, 0.05, 0.3, 0.03])
+    sax2 = fig.add_axes([0.15, 0.10, 0.3, 0.03])
+    sax3 = fig.add_axes([0.15, 0.15, 0.3, 0.03])
+    sax4 = fig.add_axes([0.15, 0.20, 0.3, 0.03])
+    sax5 = fig.add_axes([0.15, 0.25, 0.3, 0.03])
     s1 = Slider(sax1, 'Int1', 0, 255, valfmt='%0.0f', valinit=ints[0])
     s2 = Slider(sax2, 'Int2', 0, 255, valfmt='%0.0f', valinit=ints[1])
     s3 = Slider(sax3, 'Int3', 0, 255, valfmt='%0.0f', valinit=ints[2])
@@ -122,26 +122,26 @@ def SliderFigure(sumImage):
     s3.on_changed(lambda x: slid(3, x))
     s4.on_changed(lambda x: slid(4, x))
     s5.on_changed(lambda x: slid(5, x))
-    tax1 = fig.add_axes([0.7, 0.05, 0.05, 0.03])
-    tax2 = fig.add_axes([0.7, 0.10, 0.05, 0.03])
-    tax3 = fig.add_axes([0.7, 0.15, 0.05, 0.03])
-    tax4 = fig.add_axes([0.7, 0.20, 0.05, 0.03])
-    tax5 = fig.add_axes([0.7, 0.25, 0.05, 0.03])
-    t1 = TextBox(tax1, '', initial=str(spacing[0]))
-    t2 = TextBox(tax2, '', initial=str(spacing[1]))
-    t3 = TextBox(tax3, '', initial=str(spacing[2]))
-    t4 = TextBox(tax4, '', initial=str(spacing[3]))
-    t5 = TextBox(tax5, '', initial=str(spacing[4]))
-    t1.on_submit(lambda x: space(1, x))
-    t2.on_submit(lambda x: space(2, x))
-    t3.on_submit(lambda x: space(3, x))
-    t4.on_submit(lambda x: space(4, x))
-    t5.on_submit(lambda x: space(5, x))
+    tax1 = fig.add_axes([0.55, 0.05, 0.3, 0.03])
+    tax2 = fig.add_axes([0.55, 0.10, 0.3, 0.03])
+    tax3 = fig.add_axes([0.55, 0.15, 0.3, 0.03])
+    tax4 = fig.add_axes([0.55, 0.20, 0.3, 0.03])
+    tax5 = fig.add_axes([0.55, 0.25, 0.3, 0.03])
+    t1 = Slider(tax1, 'Spa1', 1, 30, valfmt='%0.0f', valinit=spacing[0])
+    t2 = Slider(tax2, 'Spa2', 1, 30, valfmt='%0.0f', valinit=spacing[1])
+    t3 = Slider(tax3, 'Spa3', 1, 30, valfmt='%0.0f', valinit=spacing[2])
+    t4 = Slider(tax4, 'Spa4', 1, 30, valfmt='%0.0f', valinit=spacing[3])
+    t5 = Slider(tax5, 'Spa5', 1, 30, valfmt='%0.0f', valinit=spacing[4])
+    t1.on_changed(lambda x: space(1, x))
+    t2.on_changed(lambda x: space(2, x))
+    t3.on_changed(lambda x: space(3, x))
+    t4.on_changed(lambda x: space(4, x))
+    t5.on_changed(lambda x: space(5, x))
 
     eax1 = fig.add_axes([0.15, 0.5, 0.2, 0.03])
     eax2 = fig.add_axes([0.15, 0.55, 0.2, 0.03])
-    e1 = Slider(eax1, 'Thr1', 0, 1000, valfmt='%0.0f', valinit=edgethr[0])
-    e2 = Slider(eax2, 'Thr0', 0, 1000, valfmt='%0.0f', valinit=edgethr[1])
+    e1 = Slider(eax1, 'Thr1', 50, 300, valfmt='%0.0f', valinit=edgethr[0])
+    e2 = Slider(eax2, 'Thr0', 50, 300, valfmt='%0.0f', valinit=edgethr[1])
     e1.on_changed(lambda x: thresh(1, x))
     e2.on_changed(lambda x: thresh(2, x))
 
@@ -155,7 +155,7 @@ def SliderFigure(sumImage):
 
     def space(ind, val):
         global ints, spacing, threshhold
-        spacing[ind-1] = int(val)
+        spacing[ind-1] = val
         sumImage = Update(0, ind, 0, 0, 0)
         ax.imshow(1-sumImage, cmap='gray', vmin=0, vmax=1)
         fig.canvas.draw()
@@ -295,7 +295,7 @@ def genGraph(es):
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
     counter = 1
-    while len(nOdeg(G)) > 400:
+    while len(nOdeg(G)) > 300:
         counter += 1
         print('LinkDegOdd '+str(counter))
         G = LinkDegOdd(G, nnodes, dnodes)
@@ -536,8 +536,6 @@ def PathFinder(G, dnodes):
 
     # Only look at odd to odd paths
     np.fill_diagonal(A, 1000000)  # No self loops
-    A2 = A[nO, :]
-    A2 = A2[:, nO]
 
     # Get all combinations of two odd nodes
     odd_node_pairs = list(itertools.combinations(nO, 2))
@@ -573,7 +571,7 @@ def PathFinder(G, dnodes):
 
 
 def PlotGraph(G, ndnodes):
-    if not interactive:
+    if interactive is not 'check':
         return
     nx.draw_networkx_edges(G, ndnodes, node_size=0.01, width=.2)
     nx.draw_networkx_nodes(G, ndnodes, nodelist=nOdeg(G), node_size=0.02)
