@@ -334,10 +334,10 @@ def ConnectCanny(cIm):
     print('ConnectCanny', len(cpts))
     G = nx.Graph()
 
-    G = NeiEdge(G, cIm, 2)
-    G = NeiEdge(G, cIm, 4)
-    G = NeiEdge(G, cIm, 1)
-    G = NeiEdge(G, cIm, 3)
+    G = AddNeighborEdges(G, cIm, 2)
+    G = AddNeighborEdges(G, cIm, 4)
+    G = AddNeighborEdges(G, cIm, 1)
+    G = AddNeighborEdges(G, cIm, 3)
     return list(G.edges())
 
 
@@ -358,7 +358,7 @@ def buildHatch(shape, direction, spacing, offset):
 # Given lines from buildHatch, turn matrix points into long graph edges
 def createDiagEdges(mask, ori):
     # Connect adjacent points
-    G = NeiEdge(nx.Graph(), mask, (2+ori))
+    G = AddNeighborEdges(nx.Graph(), mask, (2+ori))
 
     # Each component is a long edge
     edges = []

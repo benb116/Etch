@@ -6,20 +6,6 @@ import matplotlib.pyplot as plt
 from artUtils import *
 
 # https://www.pyimagesearch.com/2015/04/06/zero-parameter-automatic-canny-edge-detection-with-python-and-opencv/
-
-def auto_canny(image, a, b):
-    # compute the median of the single channel pixel intensities
-    # v = np.median(image)
-
-    # apply automatic Canny edge detection using the computed median
-    # lower = int(max(0, (1.0 - sigma) * v))
-    # upper = int(min(255, (1.0 + sigma) * v))
-    edged = cv2.Canny(image, a, b)
-
-    # return the edged image
-    return edged
-
-
 def extractEdges(imagePath, a,b):
     # load the image, convert it to grayscale, and blur it slightly
     image = cv2.imread(imagePath)
@@ -29,7 +15,8 @@ def extractEdges(imagePath, a,b):
     # blurred = cv2.GaussianBlur(blurred, (3, 3), 0)
     # apply Canny edge detection using a wide threshold, tight
     # threshold, and automatically determined threshold
-    auto = despeck(auto_canny(blurred, a,b))
+    auto = cv2.Canny(blurred, a,b)
+    auto = (auto > 0) & (despeck(auto) > 0)
     # plt.imshow((np.array(auto)))
     # plt.show()
     return auto

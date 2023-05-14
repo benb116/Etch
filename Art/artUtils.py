@@ -41,8 +41,8 @@ def thinOut(Im):
 def despeck(Im):
     kernel = np.ones((5, 5))
     kernel[2, 2] = 0
-    c = convolve(Im, kernel, mode='constant')
-    return np.multiply((c > 0), Im) > 0
+    c = convolve(Im, kernel, mode='nearest')
+    return c / 24
 
 
 # Given a boolean matrix, return (m, n) coordinates of all points
@@ -71,13 +71,13 @@ def nOdeg(T):
     return [v for v, d2 in T.degree() if d2 % 2 == 1]
 
 
-# Find all points that have a neighbor in a specific position
+# Find all points in a matrix that have a neighbor in a specific position
 # And add an edge between those two points
 # ori
 # 1 2 3
 # 4 X 6
 # 7 8 9
-def NeiEdge(G, im, ori):
+def AddNeighborEdges(G, im, ori):
     # Look for pixels with pixels around them in correct direction
     # Convolve to get pixels that match that criterion
     kernel = np.zeros(9)
@@ -86,9 +86,10 @@ def NeiEdge(G, im, ori):
     c = convolve(im.astype(int), kernel, mode='constant')
 
     # Get the XY coords of pixels that are in the original image and the convolved image
-    cities = getCities(np.multiply(c == 1, im))
+    cities = getCities(np.multiply(c == 1, im) > 0)
     cities = [p for p in cities if ((p[0] != 0) & (p[1] != 0))]  # Filter out zeros
 
+    # If G comes populated, use endpoints of those edges instead
     if ori % 2 == 1 and len(list(G.nodes())) > 0:
         cities = [p for p in cities if (G.degree(p) == 1)]
 
