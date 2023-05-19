@@ -74,11 +74,11 @@ def combineImages(edge_image, hatched_images):
 
 def GenerateEdges(Ig, interactive, im_path):
   # Binning and hatching parameters
-  cutoffs = np.array([10, 30, 50, 65, 255])  # Brightness cutoffs
+  cutoffs = np.array([26, 29, 99, 102, 255])  # Brightness cutoffs
   orientation = np.array([-1, 1, -1, 1, -1])  # Direction (not all the same way)
-  spacing = np.array([2, 6, 10, 15, 20])      # Corresponding line densities
+  spacing = np.array([4, 6, 10, 15, 20])      # Corresponding line densities
   offset = np.array([0, 0, 0, 0, 100000])     # Any offsets
-  edge_parameters = [157, 85]                # Edge detection parameters
+  edge_parameters = [210, 85]                # Edge detection parameters
 
   Ig = despeck(Ig)
   Im_blur = blur(Ig)  # Smooth out any small specks

@@ -4,20 +4,23 @@ from PIL import Image
 import networkx as nx
 import matplotlib.pyplot as plt
 
+from modin.config import ProgressBar
+ProgressBar.enable()
+
 from artUtils import *
 from imageParser import GenerateEdges
 from graphMods import *
 
 # If interactive, show GUI for parameter tuning
-# Also show progress after each step
-interactive = True
+# If interactive == 'check' also show progress after each step
+interactive = False
 if len(sys.argv) > 2:
   interactive = False
 print('Interactive', interactive)       # Edge detection parameters
 
 # Pull the image
 folder = '/Users/Ben/Desktop/Files/Etch/'
-jpgname = sys.argv[1]if 1 < len(sys.argv) else 'PhanaticNew'
+jpgname = sys.argv[1]if 1 < len(sys.argv) else 'Supercar2'
 im_path = os.path.join(folder, jpgname+'.jpg')
 Im = np.array(Image.open(im_path).convert('RGB'))
 Im_gray = rgb2gray(Im)
@@ -63,10 +66,14 @@ def main():
   print('LinkDegOdd')
   G = LinkDegOdd(G, coord_to_ind, ind_to_coord)
   counter = 1
-  while len(nOdeg(G)) > 300:
+  previous_nOdeg = nOdeg(G)
+  this_nOdeg = None
+  while len(nOdeg(G)) > 300 and previous_nOdeg != this_nOdeg:
     counter += 1
+    previous_nOdeg = this_nOdeg
     print('LinkDegOdd '+str(counter))
     G = LinkDegOdd(G, coord_to_ind, ind_to_coord)
+    this_nOdeg = len(nOdeg(G))
     print("Num Odd", len(nOdeg(G)))  # Number of odd degree nodes
     print("Num One", len(n1deg(G)))  # Number of degree one nodes
 

@@ -104,6 +104,11 @@ def LinkDegOne(G, coord_to_ind, ind_to_coord):
 # Add a parallel edge from any remaining odd degree node to closest odd deg node
 # May not make all odd points even
 def LinkDegOdd(G, coord_to_ind, ind_to_coord):
+  point_coords = ind_to_coord.values()
+  xcoord = [p[0] for p in ind_to_coord.values()]
+  ycoord = [p[1] for p in ind_to_coord.values()]
+
+  distance_threshold = 0.01 * pythag((max(xcoord), max(ycoord)), (min(xcoord), min(ycoord)))
   nodes_odd_degree = nOdeg(G)
   odd_coord = [ind_to_coord[p] for p in nodes_odd_degree]
 
@@ -111,6 +116,9 @@ def LinkDegOdd(G, coord_to_ind, ind_to_coord):
     dm = distance_matrix([ind_to_coord[p]], odd_coord)
     dm[dm==0] = 100000
     nei = dm.argmin()
+    edge_distance = dm[0][nei]
+    if edge_distance > distance_threshold:
+      return None
     return [p, coord_to_ind[odd_coord[nei]], dm[0][nei]]
 
   df = pd.Series(nodes_odd_degree)
