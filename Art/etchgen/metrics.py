@@ -21,7 +21,7 @@ def compute_metrics(points, seg_class, px_speed=50.0):
     connector = float(seglen[seg_class == CONNECTOR].sum())
     # count connector runs, not segments
     is_conn = (seg_class == CONNECTOR).astype(np.int8)
-    runs = int(np.count_nonzero(np.diff(is_conn) == 1) + (is_conn[0] == 1))
+    runs = int(np.count_nonzero(np.diff(is_conn) == 1) + (is_conn[0] == 1 if len(is_conn) > 0 else 0))
     return {
         "points": int(len(points)),
         "total_len": round(total, 1),

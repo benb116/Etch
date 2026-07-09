@@ -95,7 +95,10 @@ class Pipeline:
     def set_style_params(self, style, param_overrides=None):
         """Set style and parameters."""
         self.style = style
-        self.params = p_module.coerce(style, param_overrides or {})
+        # Apply style presets first, then user overrides
+        style_preset = p_module.STYLES.get(style, {})
+        merged_overrides = {**style_preset, **(param_overrides or {})}
+        self.params = p_module.coerce(style, merged_overrides)
 
     def stage_key(self, stage):
         """Get cache key for a stage (params relevant up to and including this stage)."""

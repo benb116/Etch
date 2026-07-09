@@ -135,11 +135,25 @@ def defaults(style):
 
 
 def coerce(style, overrides):
-    """Merge user overrides onto defaults, clamped/typed to the schema."""
+    """Merge user overrides onto defaults, clamped/typed to the schema.
+
+    Also handles style-specific metadata like use_structure and tone_mode.
+    """
     out = defaults(style)
+
+    # Merge style preset values (use_structure, tone_mode)
+    style_preset = STYLES.get(style, {})
+    for k, v in style_preset.items():
+        if k not in _BY_KEY:
+            out[k] = v
+
     for k, v in (overrides or {}).items():
         p = _BY_KEY.get(k)
-        if p is None or (p.styles and style not in p.styles):
+        if p is None:
+            # Allow style metadata through (use_structure, tone_mode, etc.)
+            out[k] = v
+            continue
+        if p.styles and style not in p.styles:
             continue
         if p.type == "bool":
             out[k] = v in (True, "true", "True", 1, "1", "on")
