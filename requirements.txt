@@ -1,0 +1,7 @@
+numpy>=1.20
+opencv-contrib-python>=4.5
+scipy>=1.7
+networkx>=2.6
+Pillow>=8.3
+Flask>=2.0
+pytest>=6.0
