@@ -1,0 +1,374 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: #fafafa;
+    --fg: #333;
+    --border: #ddd;
+    --accent: #0066cc;
+    --accent-light: #e6f0ff;
+    --success: #28a745;
+    --danger: #dc3545;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #1a1a1a;
+        --fg: #e0e0e0;
+        --border: #444;
+        --accent: #5fa3ff;
+        --accent-light: #1a3a66;
+    }
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.5;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2em;
+    margin-bottom: 5px;
+}
+
+header p {
+    color: var(--fg);
+    opacity: 0.7;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Upload Section */
+.upload-section {
+    margin-bottom: 20px;
+}
+
+.upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--accent-light);
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+}
+
+.upload-area.dragover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+}
+
+.upload-prompt p {
+    font-size: 1.1em;
+    color: var(--fg);
+    opacity: 0.8;
+}
+
+.info-bar {
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--accent-light);
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* Content Grid */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.5fr;
+    gap: 20px;
+    flex: 1;
+}
+
+@media (max-width: 1400px) {
+    .content-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .params-section {
+        grid-column: 1 / -1;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+}
+
+@media (max-width: 900px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+section {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    background: var(--bg);
+}
+
+section h2 {
+    font-size: 1.3em;
+    margin-bottom: 15px;
+}
+
+/* Source Section */
+.source-preview {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #f5f5f5;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.source-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Parameters Section */
+.params-header {
+    margin-bottom: 20px;
+}
+
+.style-selector {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.style-selector select {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 0.95em;
+}
+
+.params-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.param-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.param-label {
+    font-size: 0.9em;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.param-tooltip {
+    font-size: 0.8em;
+    color: var(--fg);
+    opacity: 0.6;
+    font-style: italic;
+}
+
+.param-value {
+    font-size: 0.85em;
+    color: var(--accent);
+    font-weight: 500;
+}
+
+input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: none;
+}
+
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+select {
+    padding: 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--fg);
+}
+
+/* Preview Section */
+.preview-container {
+    width: 100%;
+    aspect-ratio: 1500 / 865;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: white;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.preview-svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Stats Bar */
+.stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.stat {
+    padding: 10px;
+    background: var(--accent-light);
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.stat label {
+    display: block;
+    font-size: 0.8em;
+    opacity: 0.7;
+    margin-bottom: 4px;
+}
+
+.stat span {
+    display: block;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+/* Preview Controls */
+.preview-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+button {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 15px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 0.95em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background: var(--accent);
+    color: white;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+#finalBtn {
+    background: var(--success);
+    color: white;
+    border-color: var(--success);
+}
+
+#finalBtn:hover {
+    opacity: 0.9;
+}
+
+/* Status Bar */
+.status-bar {
+    margin-top: 20px;
+    padding: 10px;
+    background: var(--accent-light);
+    border-radius: 4px;
+    font-size: 0.9em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#renderTime {
+    font-family: monospace;
+    color: var(--accent);
+}
+
+/* Loading state */
+.loading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* Animation for line drawing replay */
+@keyframes draw {
+    from {
+        stroke-dashoffset: 10000;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.animating #previewLine {
+    stroke-dasharray: 10000;
+    animation: draw var(--animation-duration, 10s) linear forwards;
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etch Generator - Preview</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Etch Generator</h1>
+            <p>Convert images to single-line Etch-a-Sketch drawings</p>
+        </header>
+
+        <main>
+            <!-- Upload & Info Section -->
+            <section class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-prompt">
+                        <p>Drag image here or click to select</p>
+                        <input type="file" id="imageInput" accept="image/*" style="display:none;">
+                    </div>
+                </div>
+                <div class="info-bar">
+                    <span id="imageInfo">No image loaded</span>
+                </div>
+            </section>
+
+            <!-- Main Content -->
+            <div class="content-grid">
+                <!-- Left: Source Image -->
+                <section class="source-section">
+                    <h2>Source Image</h2>
+                    <div class="source-preview">
+                        <img id="sourceImage" src="" alt="Source image">
+                    </div>
+                </section>
+
+                <!-- Center: Parameters -->
+                <section class="params-section">
+                    <div class="params-header">
+                        <h2>Parameters</h2>
+                        <div class="style-selector">
+                            <label for="styleSelect">Style:</label>
+                            <select id="styleSelect">
+                                <option value="sketch">Sketch (contours + flow)</option>
+                                <option value="hatch">Hatch (parallel lines)</option>
+                                <option value="pencil">Pencil (flow only)</option>
+                                <option value="squiggle">Squiggle (scanlines)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="params-list" id="paramsList"></div>
+                </section>
+
+                <!-- Right: Preview & Stats -->
+                <section class="preview-section">
+                    <h2>Preview</h2>
+                    <div class="preview-container">
+                        <svg id="previewSvg" viewBox="0 0 1500 865" class="preview-svg">
+                            <rect width="1500" height="865" fill="white"/>
+                            <polyline id="previewLine" points="" fill="none" stroke="black" stroke-width="1" vector-effect="non-scaling-stroke"/>
+                            <polyline id="retraceOverlay" points="" fill="none" stroke="blue" stroke-width="1.5" vector-effect="non-scaling-stroke" opacity="0.6" stroke-dasharray="3,3"/>
+                            <polyline id="connectorOverlay" points="" fill="none" stroke="red" stroke-width="1.5" vector-effect="non-scaling-stroke" opacity="0.6"/>
+                        </svg>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="stats-bar">
+                        <div class="stat">
+                            <label>Points</label>
+                            <span id="statPoints">0</span>
+                        </div>
+                        <div class="stat">
+                            <label>Ink %</label>
+                            <span id="statInk">0%</span>
+                        </div>
+                        <div class="stat">
+                            <label>Total Length</label>
+                            <span id="statLength">0</span>
+                        </div>
+                        <div class="stat">
+                            <label>Draw Time</label>
+                            <span id="statTime">0s</span>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="preview-controls">
+                        <button id="replayBtn" title="Animate the stroke drawing">▶ Replay</button>
+                        <button id="toggleOverlayBtn" title="Show/hide retrace and connector overlays">👁 Toggle Overlay</button>
+                        <button id="finalBtn" title="Render at full quality and save">💾 Save Final</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Status bar -->
+        <div class="status-bar">
+            <span id="status">Ready</span>
+            <span id="renderTime"></span>
+        </div>
+    </div>
+
+    <!-- Hidden file input for save dialog -->
+    <input type="file" id="saveFileInput" nwsaveas style="display:none;">
+
+    <script src="static/app.js"></script>
+</body>
+</html>
